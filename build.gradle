@@ -1,0 +1,22 @@
+plugins {
+    id 'java'
+}
+
+group 'com.taotas'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.8.0-RC1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.0-RC1'
+    testImplementation 'com.codeborne:selenide:5.23.3'
+}
+
+test {
+    useJUnitPlatform()
+}
