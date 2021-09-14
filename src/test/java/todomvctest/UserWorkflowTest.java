@@ -5,7 +5,8 @@ import com.codeborne.selenide.Selenide;
 import org.junit.jupiter.api.Test;
 
 import static com.codeborne.selenide.CollectionCondition.exactTexts;
-import static com.codeborne.selenide.Condition.*;
+import static com.codeborne.selenide.Condition.cssClass;
+import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Selenide.*;
 import static org.openqa.selenium.support.ui.ExpectedConditions.jsReturnsValue;
 
@@ -20,6 +21,7 @@ public class UserWorkflowTest {
                 "return (Object.keys(require.s.contexts._.defined).length === 39 &&" +
                         " $._data($('#clear-completed').get(0), 'events')" +
                         ".hasOwnProperty('click'))"));
+
         // Create
         $("#new-todo").append("a").pressEnter();
         $("#new-todo").append("b").pressEnter();
@@ -30,16 +32,19 @@ public class UserWorkflowTest {
         $$("#todo-list>li").findBy(exactText("b")).doubleClick();
         $$("#todo-list>li").findBy(cssClass("editing")).find(".edit")
                 .append(" edited").pressEnter();
-        $$("#todo-list>li").shouldHave(exactTexts("a", "b edited", "c"));
+
+        // Complete & Clear
+        $$("#todo-list>li").findBy(exactText("b edited")).find(".toggle").click();
+        $("#clear-completed").click();
+        $$("#todo-list>li").shouldHave(exactTexts("a", "c"));
+
+        // Cancel edit
+        elements("#todo-list>li").findBy(exactText("c")).doubleClick();
+        elements("#todo-list>li").findBy(cssClass("editing"))
+                .find(".edit").append("to be canceled").pressEscape();
 
         // Delete
-        $$("#todo-list>li").findBy(exactText("a")).hover().find(".destroy").click();
-
-        // Complete
-        $$("#todo-list>li").findBy(exactText("b edited")).find(".toggle").click();
-
-        // Clear-completed
-        $("#clear-completed").click();
-        $$("#todo-list>li").shouldHave(exactTexts("c"));
+        $$("#todo-list>li").findBy(exactText("c")).hover().find(".destroy").click();
+        $$("#todo-list>li").shouldHave(exactTexts("a"));
     }
 }
