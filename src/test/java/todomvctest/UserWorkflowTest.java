@@ -12,7 +12,7 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.jsReturnsValue;
 public class UserWorkflowTest {
 
     @Test
-    public void todoMvcSmokeTests() throws InterruptedException {
+    public void todoCrudManagement() {
         Configuration.timeout = 6000;
 
         open("http://todomvc4tasj.herokuapp.com/");
@@ -29,16 +29,17 @@ public class UserWorkflowTest {
         // Edit
         $$("#todo-list>li").findBy(exactText("b")).doubleClick();
         $$("#todo-list>li").findBy(cssClass("editing")).find(".edit")
-                .append("D").pressEnter();
-        $$("#todo-list>li").shouldHave(exactTexts("a", "bD", "c"));
+                .append(" edited").pressEnter();
+        $$("#todo-list>li").shouldHave(exactTexts("a", "b edited", "c"));
 
-        // todoShouldDeleted
+        // Delete
         $$("#todo-list>li").findBy(exactText("a")).hover().find(".destroy").click();
-        $$("#todo-list>li").shouldHave(exactTexts("bD", "c"));
 
-        // todoShouldCompleted
-        $$("#todo-list>li").findBy(exactText("c")).find(".toggle").click();
+        // Complete
+        $$("#todo-list>li").findBy(exactText("b edited")).find(".toggle").click();
+
+        // Clear-completed
         $("#clear-completed").click();
-        $$("#todo-list>li").shouldHave(exactTexts("bD"));
+        $$("#todo-list>li").shouldHave(exactTexts("c"));
     }
 }
