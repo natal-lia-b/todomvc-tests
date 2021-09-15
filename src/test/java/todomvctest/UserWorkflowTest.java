@@ -1,7 +1,9 @@
 package todomvctest;
 
 import com.codeborne.selenide.Configuration;
+import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.SelenideElement;
 import org.junit.jupiter.api.Test;
 
 import static com.codeborne.selenide.CollectionCondition.exactTexts;
@@ -22,29 +24,39 @@ public class UserWorkflowTest {
                         " $._data($('#clear-completed').get(0), 'events')" +
                         ".hasOwnProperty('click'))"));
 
-        // Create
-        $("#new-todo").append("a").pressEnter();
-        $("#new-todo").append("b").pressEnter();
-        $("#new-todo").append("c").pressEnter();
-        $$("#todo-list>li").shouldHave(exactTexts("a", "b", "c"));
+        add("a", "b", "c");
+        todoList_li.shouldHave(exactTexts("a", "b", "c"));
 
-        // Edit
-        $$("#todo-list>li").findBy(exactText("b")).doubleClick();
-        $$("#todo-list>li").findBy(cssClass("editing")).find(".edit")
-                .append(" edited").pressEnter();
+        editAndComplete( "b", " edited");
+        todoList_li.shouldHave(exactTexts("a", "c"));
 
-        // Complete & Clear
-        $$("#todo-list>li").findBy(exactText("b edited")).find(".toggle").click();
-        $("#clear-completed").click();
-        $$("#todo-list>li").shouldHave(exactTexts("a", "c"));
-
-        // Cancel edit
-        elements("#todo-list>li").findBy(exactText("c")).doubleClick();
-        elements("#todo-list>li").findBy(cssClass("editing"))
-                .find(".edit").append("to be canceled").pressEscape();
-
-        // Delete
-        $$("#todo-list>li").findBy(exactText("c")).hover().find(".destroy").click();
-        $$("#todo-list>li").shouldHave(exactTexts("a"));
+        cancelEditAndDelete("c", "to be canceled");
+        todoList_li.shouldHave(exactTexts("a"));
     }
+
+    private void cancelEditAndDelete(String text, String toBeCanceledText) {
+        todoList_li.findBy(exactText(text)).doubleClick();
+        todoList_li.findBy(cssClass("editing"))
+                .find(".edit").append(toBeCanceledText).pressEscape();
+
+        todoList_li.findBy(exactText(text)).hover().find(".destroy").click();
+    }
+
+    private void editAndComplete(String task, String addedText) {
+        todoList_li.findBy(exactText(task)).doubleClick();
+        todoList_li.findBy(cssClass("editing")).find(".edit")
+                .append(addedText).pressEnter();
+
+        todoList_li.findBy(exactText(task + addedText)).find(".toggle").click();
+        $("#clear-completed").click();
+    }
+
+    private void add(String... tasks) {
+        for (String task: tasks) {
+            newTodo.append(task).pressEnter();
+        }
+    }
+
+    private final SelenideElement newTodo = $("#new-todo");
+    private final ElementsCollection todoList_li = $$("#todo-list>li");
 }
