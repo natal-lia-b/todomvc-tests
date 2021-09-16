@@ -25,38 +25,37 @@ public class UserWorkflowTest {
                         ".hasOwnProperty('click'))"));
 
         add("a", "b", "c");
-        todoList_li.shouldHave(exactTexts("a", "b", "c"));
+        todosShouldBe("a", "b", "c");
 
-        editAndComplete( "b", " edited");
-        todoList_li.shouldHave(exactTexts("a", "c"));
-
-        cancelEditAndDelete("c", "to be canceled");
-        todoList_li.shouldHave(exactTexts("a"));
-    }
-
-    private void cancelEditAndDelete(String text, String toBeCanceledText) {
-        todoList_li.findBy(exactText(text)).doubleClick();
-        todoList_li.findBy(cssClass("editing"))
-                .find(".edit").append(toBeCanceledText).pressEscape();
-
-        todoList_li.findBy(exactText(text)).hover().find(".destroy").click();
-    }
-
-    private void editAndComplete(String task, String addedText) {
-        todoList_li.findBy(exactText(task)).doubleClick();
-        todoList_li.findBy(cssClass("editing")).find(".edit")
-                .append(addedText).pressEnter();
-
-        todoList_li.findBy(exactText(task + addedText)).find(".toggle").click();
+        editWithText("b", " edited").pressEnter();
+        findByText("b edited").find(".toggle").click();
         $("#clear-completed").click();
+        todosShouldBe("a", "c");
+
+        editWithText("c", "to be canceled").pressEscape();
+        findByText("c").hover().find(".destroy").click();
+        todosShouldBe("a");
+    }
+
+    private SelenideElement findByText(String text) {
+        return todos.findBy(exactText(text));
+    }
+
+    private SelenideElement editWithText(String task, String text) {
+        findByText(task).doubleClick();
+        return todos.findBy(cssClass("editing")).find(".edit")
+                .append(text);
+    }
+
+    private void todosShouldBe(String... tasks) {
+        todos.shouldHave(exactTexts(tasks));
     }
 
     private void add(String... tasks) {
         for (String task: tasks) {
-            newTodo.append(task).pressEnter();
+            $("#new-todo").append(task).pressEnter();
         }
     }
 
-    private final SelenideElement newTodo = $("#new-todo");
-    private final ElementsCollection todoList_li = $$("#todo-list>li");
+    private final ElementsCollection todos = $$("#todo-list>li");
 }
