@@ -1,7 +1,9 @@
 package todomvctest;
 
 import com.codeborne.selenide.Configuration;
+import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.SelenideElement;
 import org.junit.jupiter.api.Test;
 
 import static com.codeborne.selenide.CollectionCondition.exactTexts;
@@ -32,18 +34,16 @@ public class UserWorkflowTest {
         todosShouldBe("a");
     }
 
-    private void todosShouldBe(String... todos) {
-        $$("#todo-list>li").shouldHave(exactTexts(todos));
+    private void todosShouldBe(String... todosTexts) {
+        todos.shouldHave(exactTexts(todosTexts));
     }
 
     private void cancelEdit(String todo, String newText) {
-        elements("#todo-list>li").findBy(exactText(todo)).doubleClick();
-        elements("#todo-list>li").findBy(cssClass("editing"))
-                .find(".edit").setValue(newText).pressEscape();
+        todoSetValue(todo, newText).pressEscape();
     }
 
     private void delete(String todo) {
-        $$("#todo-list>li").findBy(exactText(todo)).hover().find(".destroy").click();
+        findByText(todo).hover().find(".destroy").click();
     }
 
     private void clearCompleted() {
@@ -51,17 +51,24 @@ public class UserWorkflowTest {
     }
 
     private void toggle(String todo) {
-        $$("#todo-list>li").findBy(exactText(todo)).find(".toggle").click();
+        findByText(todo).find(".toggle").click();
+    }
+
+    private SelenideElement todoSetValue(String todo, String newText) {
+        findByText(todo).doubleClick();
+        return todos.findBy(cssClass("editing")).find(".edit").setValue(newText);
+    }
+
+    private SelenideElement findByText(String todo) {
+        return todos.findBy(exactText(todo));
     }
 
     private void edit(String todo, String newText) {
-        $$("#todo-list>li").findBy(exactText(todo)).doubleClick();
-        $$("#todo-list>li").findBy(cssClass("editing")).find(".edit")
-                .setValue(newText).pressEnter();
+        todoSetValue(todo, newText).pressEnter();
     }
 
-    private void add(String... todos) {
-        for(String todo : todos) {
+    private void add(String... todoTexts) {
+        for(String todo : todoTexts) {
             $("#new-todo").append(todo).pressEnter();
         }
     }
@@ -77,4 +84,6 @@ public class UserWorkflowTest {
                 getObjectKeysLengthScript + " && " +
                         clearComplitedIsClickableScript));
     }
+
+    private final ElementsCollection todos = $$("#todo-list>li");
 }
