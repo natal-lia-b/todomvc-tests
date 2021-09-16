@@ -22,29 +22,36 @@ public class UserWorkflowTest {
                         " $._data($('#clear-completed').get(0), 'events')" +
                         ".hasOwnProperty('click'))"));
 
-        // Create
-        $("#new-todo").append("a").pressEnter();
-        $("#new-todo").append("b").pressEnter();
-        $("#new-todo").append("c").pressEnter();
+        add("a", "b", "c");
         $$("#todo-list>li").shouldHave(exactTexts("a", "b", "c"));
 
-        // Edit
-        $$("#todo-list>li").findBy(exactText("b")).doubleClick();
-        $$("#todo-list>li").findBy(cssClass("editing")).find(".edit")
-                .append(" edited").pressEnter();
-
-        // Complete & Clear
-        $$("#todo-list>li").findBy(exactText("b edited")).find(".toggle").click();
-        $("#clear-completed").click();
+        editCompleteAndClear("b", " edited");
         $$("#todo-list>li").shouldHave(exactTexts("a", "c"));
 
-        // Cancel edit
-        elements("#todo-list>li").findBy(exactText("c")).doubleClick();
-        elements("#todo-list>li").findBy(cssClass("editing"))
-                .find(".edit").append("to be canceled").pressEscape();
-
-        // Delete
-        $$("#todo-list>li").findBy(exactText("c")).hover().find(".destroy").click();
+        cancelEditAndDelete("c", "to be canceled");
         $$("#todo-list>li").shouldHave(exactTexts("a"));
+    }
+
+    private void cancelEditAndDelete(String todo, String text) {
+        elements("#todo-list>li").findBy(exactText(todo)).doubleClick();
+        elements("#todo-list>li").findBy(cssClass("editing"))
+                .find(".editCompleteAndClear").append(text).pressEscape();
+
+        $$("#todo-list>li").findBy(exactText(todo)).hover().find(".destroy").click();
+    }
+
+    private void editCompleteAndClear(String todo, String text) {
+        $$("#todo-list>li").findBy(exactText(todo)).doubleClick();
+        $$("#todo-list>li").findBy(cssClass("editing")).find(".editCompleteAndClear")
+                .append(text).pressEnter();
+
+        $$("#todo-list>li").findBy(exactText(todo + text)).find(".toggle").click();
+        $("#clear-completed").click();
+    }
+
+    private void add(String... texts) {
+        for(String text: texts) {
+            $("#new-todo").append(text).pressEnter();
+        }
     }
 }
