@@ -14,6 +14,8 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.jsReturnsValue;
 
 public class UserWorkflowTest {
 
+    private final ElementsCollection todos = $$("#todo-list>li");
+
     @Test
     public void todoCrudManagement() {
         Configuration.timeout = 6000;
@@ -38,10 +40,6 @@ public class UserWorkflowTest {
         todos.shouldHave(exactTexts(todosTexts));
     }
 
-    private void cancelEdit(String todo, String newText) {
-        todoSetValue(todo, newText).pressEscape();
-    }
-
     private void delete(String todo) {
         findByText(todo).hover().find(".destroy").click();
     }
@@ -54,13 +52,17 @@ public class UserWorkflowTest {
         findByText(todo).find(".toggle").click();
     }
 
+    private SelenideElement findByText(String todo) {
+        return todos.findBy(exactText(todo));
+    }
+
     private SelenideElement todoSetValue(String todo, String newText) {
         findByText(todo).doubleClick();
         return todos.findBy(cssClass("editing")).find(".edit").setValue(newText);
     }
 
-    private SelenideElement findByText(String todo) {
-        return todos.findBy(exactText(todo));
+    private void cancelEdit(String todo, String newText) {
+        todoSetValue(todo, newText).pressEscape();
     }
 
     private void edit(String todo, String newText) {
@@ -84,6 +86,4 @@ public class UserWorkflowTest {
                 getObjectKeysLengthScript + " && " +
                         clearComplitedIsClickableScript));
     }
-
-    private final ElementsCollection todos = $$("#todo-list>li");
 }
