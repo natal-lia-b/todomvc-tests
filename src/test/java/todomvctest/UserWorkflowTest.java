@@ -1,9 +1,7 @@
 package todomvctest;
 
 import com.codeborne.selenide.Configuration;
-import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.Selenide;
-import com.codeborne.selenide.SelenideElement;
 import org.junit.jupiter.api.Test;
 
 import static com.codeborne.selenide.CollectionCondition.exactTexts;
@@ -24,38 +22,29 @@ public class UserWorkflowTest {
                         " $._data($('#clear-completed').get(0), 'events')" +
                         ".hasOwnProperty('click'))"));
 
-        add("a", "b", "c");
-        todosShouldBe("a", "b", "c");
+        // Create
+        $("#new-todo").append("a").pressEnter();
+        $("#new-todo").append("b").pressEnter();
+        $("#new-todo").append("c").pressEnter();
+        $$("#todo-list>li").shouldHave(exactTexts("a", "b", "c"));
 
-        editWithText("b", " edited").pressEnter();
-        findByText("b edited").find(".toggle").click();
+        // Edit
+        $$("#todo-list>li").findBy(exactText("b")).doubleClick();
+        $$("#todo-list>li").findBy(cssClass("editing")).find(".edit")
+                .append(" edited").pressEnter();
+
+        // Complete & Clear
+        $$("#todo-list>li").findBy(exactText("b edited")).find(".toggle").click();
         $("#clear-completed").click();
-        todosShouldBe("a", "c");
+        $$("#todo-list>li").shouldHave(exactTexts("a", "c"));
 
-        editWithText("c", "to be canceled").pressEscape();
-        findByText("c").hover().find(".destroy").click();
-        todosShouldBe("a");
+        // Cancel edit
+        elements("#todo-list>li").findBy(exactText("c")).doubleClick();
+        elements("#todo-list>li").findBy(cssClass("editing"))
+                .find(".edit").append("to be canceled").pressEscape();
+
+        // Delete
+        $$("#todo-list>li").findBy(exactText("c")).hover().find(".destroy").click();
+        $$("#todo-list>li").shouldHave(exactTexts("a"));
     }
-
-    private SelenideElement findByText(String text) {
-        return todos.findBy(exactText(text));
-    }
-
-    private SelenideElement editWithText(String task, String text) {
-        findByText(task).doubleClick();
-        return todos.findBy(cssClass("editing")).find(".edit")
-                .append(text);
-    }
-
-    private void todosShouldBe(String... tasks) {
-        todos.shouldHave(exactTexts(tasks));
-    }
-
-    private void add(String... tasks) {
-        for (String task: tasks) {
-            $("#new-todo").append(task).pressEnter();
-        }
-    }
-
-    private final ElementsCollection todos = $$("#todo-list>li");
 }
