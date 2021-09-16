@@ -15,43 +15,66 @@ public class UserWorkflowTest {
     @Test
     public void todoCrudManagement() {
         Configuration.timeout = 6000;
+        Configuration.fastSetValue = true;
 
-        open("http://todomvc4tasj.herokuapp.com/");
-        Selenide.Wait().until(jsReturnsValue(
-                "return (Object.keys(require.s.contexts._.defined).length === 39 &&" +
-                        " $._data($('#clear-completed').get(0), 'events')" +
-                        ".hasOwnProperty('click'))"));
+        openUrl();
 
         add("a", "b", "c");
-        $$("#todo-list>li").shouldHave(exactTexts("a", "b", "c"));
+        todosShouldBe("a", "b", "c");
 
-        editCompleteAndClear("b", " edited");
-        $$("#todo-list>li").shouldHave(exactTexts("a", "c"));
+        edit("b", "b edited");
+        toggle("b edited");
+        clearCompleted();
+        todosShouldBe("a", "c");
 
-        cancelEditAndDelete("c", "to be canceled");
-        $$("#todo-list>li").shouldHave(exactTexts("a"));
+        cancelEdit("c", "c to be canceled");
+        delete("c");
+        todosShouldBe("a");
     }
 
-    private void cancelEditAndDelete(String todo, String text) {
+    private void todosShouldBe(String... todos) {
+        $$("#todo-list>li").shouldHave(exactTexts(todos));
+    }
+
+    private void cancelEdit(String todo, String newText) {
         elements("#todo-list>li").findBy(exactText(todo)).doubleClick();
         elements("#todo-list>li").findBy(cssClass("editing"))
-                .find(".editCompleteAndClear").append(text).pressEscape();
+                .find(".edit").setValue(newText).pressEscape();
+    }
 
+    private void delete(String todo) {
         $$("#todo-list>li").findBy(exactText(todo)).hover().find(".destroy").click();
     }
 
-    private void editCompleteAndClear(String todo, String text) {
-        $$("#todo-list>li").findBy(exactText(todo)).doubleClick();
-        $$("#todo-list>li").findBy(cssClass("editing")).find(".editCompleteAndClear")
-                .append(text).pressEnter();
-
-        $$("#todo-list>li").findBy(exactText(todo + text)).find(".toggle").click();
+    private void clearCompleted() {
         $("#clear-completed").click();
     }
 
-    private void add(String... texts) {
-        for(String text: texts) {
-            $("#new-todo").append(text).pressEnter();
+    private void toggle(String todo) {
+        $$("#todo-list>li").findBy(exactText(todo)).find(".toggle").click();
+    }
+
+    private void edit(String todo, String newText) {
+        $$("#todo-list>li").findBy(exactText(todo)).doubleClick();
+        $$("#todo-list>li").findBy(cssClass("editing")).find(".edit")
+                .setValue(newText).pressEnter();
+    }
+
+    private void add(String... todos) {
+        for(String todo : todos) {
+            $("#new-todo").append(todo).pressEnter();
         }
+    }
+
+    private void openUrl() {
+        open("http://todomvc4tasj.herokuapp.com/");
+
+        String getObjectKeysLengthScript =
+                "return (Object.keys(require.s.contexts._.defined).length === 39";
+        String clearComplitedIsClickableScript =
+                "$._data($('#clear-completed').get(0), 'events').hasOwnProperty('click'))";
+        Selenide.Wait().until(jsReturnsValue(
+                getObjectKeysLengthScript + " && " +
+                        clearComplitedIsClickableScript));
     }
 }
