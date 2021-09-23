@@ -14,76 +14,48 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.jsReturnsValue;
 
 public class UserWorkflowTest {
 
-    private final ElementsCollection todos = $$("#todo-list>li");
-
     @Test
     public void todoCrudManagement() {
         Configuration.timeout = 6000;
-        Configuration.fastSetValue = true;
 
-        openUrl();
+        open("http://todomvc4tasj.herokuapp.com/");
+        Selenide.Wait().until(jsReturnsValue(
+                "return (Object.keys(require.s.contexts._.defined).length === 39 &&" +
+                        " $._data($('#clear-completed').get(0), 'events')" +
+                        ".hasOwnProperty('click'))"));
 
         add("a", "b", "c");
         todosShouldBe("a", "b", "c");
 
-        edit("b", "b edited");
-        toggle("b edited");
-        clearCompleted();
+        editWithText("b", " edited").pressEnter();
+        findByText("b edited").find(".toggle").click();
+        $("#clear-completed").click();
         todosShouldBe("a", "c");
 
-        cancelEdit("c", "c to be canceled");
-        delete("c");
+        editWithText("c", "to be canceled").pressEscape();
+        findByText("c").hover().find(".destroy").click();
         todosShouldBe("a");
     }
 
-    private void todosShouldBe(String... todosTexts) {
-        todos.shouldHave(exactTexts(todosTexts));
+    private SelenideElement findByText(String text) {
+        return todos.findBy(exactText(text));
     }
 
-    private void delete(String todo) {
-        findByText(todo).hover().find(".destroy").click();
+    private SelenideElement editWithText(String task, String text) {
+        findByText(task).doubleClick();
+        return todos.findBy(cssClass("editing")).find(".edit")
+                .append(text);
     }
 
-    private void clearCompleted() {
-        $("#clear-completed").click();
+    private void todosShouldBe(String... tasks) {
+        todos.shouldHave(exactTexts(tasks));
     }
 
-    private void toggle(String todo) {
-        findByText(todo).find(".toggle").click();
-    }
-
-    private SelenideElement findByText(String todo) {
-        return todos.findBy(exactText(todo));
-    }
-
-    private SelenideElement todoSetValue(String todo, String newText) {
-        findByText(todo).doubleClick();
-        return todos.findBy(cssClass("editing")).find(".edit").setValue(newText);
-    }
-
-    private void cancelEdit(String todo, String newText) {
-        todoSetValue(todo, newText).pressEscape();
-    }
-
-    private void edit(String todo, String newText) {
-        todoSetValue(todo, newText).pressEnter();
-    }
-
-    private void add(String... todoTexts) {
-        for(String todo : todoTexts) {
-            $("#new-todo").append(todo).pressEnter();
+    private void add(String... tasks) {
+        for (String task: tasks) {
+            $("#new-todo").append(task).pressEnter();
         }
     }
 
-    private void openUrl() {
-        open("http://todomvc4tasj.herokuapp.com/");
-
-        String getObjectKeysLengthScript =
-                "return (Object.keys(require.s.contexts._.defined).length === 39";
-        String clearComplitedIsClickableScript =
-                "$._data($('#clear-completed').get(0), 'events').hasOwnProperty('click'))";
-        Selenide.Wait().until(jsReturnsValue(
-                getObjectKeysLengthScript + " && " +
-                        clearComplitedIsClickableScript));
-    }
+    private final ElementsCollection todos = $$("#todo-list>li");
 }
