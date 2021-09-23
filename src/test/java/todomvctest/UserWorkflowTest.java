@@ -1,9 +1,6 @@
 package todomvctest;
 
-import com.codeborne.selenide.Configuration;
-import com.codeborne.selenide.ElementsCollection;
-import com.codeborne.selenide.Selenide;
-import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.*;
 import org.junit.jupiter.api.Test;
 
 import static com.codeborne.selenide.CollectionCondition.exactTexts;
@@ -27,32 +24,36 @@ public class UserWorkflowTest {
         add("a", "b", "c");
         todosShouldBe("a", "b", "c");
 
-        editWithText("b", " edited").pressEnter();
+        startEditing("b", " edited").pressEnter();
         findByText("b edited").find(".toggle").click();
         $("#clear-completed").click();
         todosShouldBe("a", "c");
 
-        editWithText("c", "to be canceled").pressEscape();
+        startEditing("c", "to be canceled").pressEscape();
         findByText("c").hover().find(".destroy").click();
         todosShouldBe("a");
     }
 
-    private SelenideElement findByText(String text) {
-        return todos.findBy(exactText(text));
+    private SelenideElement findByCondition(Condition condition) {
+        return todos.findBy(condition);
     }
 
-    private SelenideElement editWithText(String task, String text) {
-        findByText(task).doubleClick();
-        return todos.findBy(cssClass("editing")).find(".edit")
-                .append(text);
+    private SelenideElement findByText(String todoText) {
+        return findByCondition(exactText(todoText));
     }
 
-    private void todosShouldBe(String... tasks) {
-        todos.shouldHave(exactTexts(tasks));
+    private SelenideElement startEditing(String todoText, String textToAdd) {
+        findByText(todoText).doubleClick();
+        return findByCondition(cssClass("editing")).find(".edit")
+                .append(textToAdd);
     }
 
-    private void add(String... tasks) {
-        for (String task: tasks) {
+    private void todosShouldBe(String... todoTexts) {
+        todos.shouldHave(exactTexts(todoTexts));
+    }
+
+    private void add(String... todoTexts) {
+        for (String task: todoTexts) {
             $("#new-todo").append(task).pressEnter();
         }
     }
