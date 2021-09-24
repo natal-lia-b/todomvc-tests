@@ -13,7 +13,6 @@ public class UserWorkflowTest {
 
     @Test
     public void todoCrudManagement() {
-        Configuration.timeout = 6000;
 
         open("http://todomvc4tasj.herokuapp.com/");
         Selenide.Wait().until(jsReturnsValue(
@@ -34,27 +33,27 @@ public class UserWorkflowTest {
         todosShouldBe("a");
     }
 
-    private SelenideElement findByCondition(Condition condition) {
+    private SelenideElement todoBy(Condition condition) {
         return todos.findBy(condition);
     }
 
-    private SelenideElement findByText(String todoText) {
-        return findByCondition(exactText(todoText));
+    private SelenideElement findByText(String text) {
+        return todoBy(exactText(text));
     }
 
-    private SelenideElement startEditing(String todoText, String textToAdd) {
-        findByText(todoText).doubleClick();
-        return findByCondition(cssClass("editing")).find(".edit")
+    private SelenideElement startEditing(String text, String textToAdd) {
+        findByText(text).doubleClick();
+        return todoBy(cssClass("editing")).find(".edit")
                 .append(textToAdd);
     }
 
-    private void todosShouldBe(String... todoTexts) {
-        todos.shouldHave(exactTexts(todoTexts));
+    private void todosShouldBe(String... texts) {
+        todos.shouldHave(exactTexts(texts));
     }
 
-    private void add(String... todoTexts) {
-        for (String task: todoTexts) {
-            $("#new-todo").append(task).pressEnter();
+    private void add(String... texts) {
+        for (String text: texts) {
+            $("#new-todo").append(text).pressEnter();
         }
     }
 
