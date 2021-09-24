@@ -1,4 +1,4 @@
-package todomvctest;
+package todomvctest.dry;
 
 import com.codeborne.selenide.*;
 import org.junit.jupiter.api.Test;
