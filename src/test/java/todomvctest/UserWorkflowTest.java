@@ -1,4 +1,4 @@
-package todomvctest.kiss;
+package todomvctest;
 
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selenide;
