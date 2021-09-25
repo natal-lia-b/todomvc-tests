@@ -17,7 +17,7 @@ public class UserWorkflowTest {
 
         Configuration.fastSetValue = true;
 
-        openUrl();
+        openApp();
 
         add("a", "b", "c");
         todosShouldBe("a", "b", "c");
@@ -30,6 +30,28 @@ public class UserWorkflowTest {
         cancelEdit("c", "c to be canceled");
         delete("c");
         todosShouldBe("a");
+    }
+
+    private void openApp() {
+        open("http://todomvc4tasj.herokuapp.com/");
+
+        String getObjectKeysLengthScript =
+                "return (Object.keys(require.s.contexts._.defined).length === 39";
+        String clearComplitedIsClickableScript =
+                "$._data($('#clear-completed').get(0), 'events').hasOwnProperty('click'))";
+        Selenide.Wait().until(jsReturnsValue(
+                getObjectKeysLengthScript + " && " +
+                        clearComplitedIsClickableScript));
+    }
+
+    private void add(String... texts) {
+        for (String text : texts) {
+            $("#new-todo").append(text).pressEnter();
+        }
+    }
+
+    private void todosShouldBe(String... texts) {
+        $$("#todo-list>li").shouldHave(exactTexts(texts));
     }
 
     private void edit(String text, String newText) {
@@ -56,26 +78,5 @@ public class UserWorkflowTest {
     private void toggle(String text) {
         $$("#todo-list>li").findBy(exactText(text))
                 .find(".toggle").click();
-    }
-    private void add(String... texts) {
-        for (String text : texts) {
-            $("#new-todo").append(text).pressEnter();
-        }
-    }
-
-    private void todosShouldBe(String... texts) {
-        $$("#todo-list>li").shouldHave(exactTexts(texts));
-    }
-
-    private void openUrl() {
-        open("http://todomvc4tasj.herokuapp.com/");
-
-        String getObjectKeysLengthScript =
-                "return (Object.keys(require.s.contexts._.defined).length === 39";
-        String clearComplitedIsClickableScript =
-                "$._data($('#clear-completed').get(0), 'events').hasOwnProperty('click'))";
-        Selenide.Wait().until(jsReturnsValue(
-                getObjectKeysLengthScript + " && " +
-                        clearComplitedIsClickableScript));
     }
 }
