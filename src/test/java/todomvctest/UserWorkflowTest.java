@@ -14,9 +14,7 @@ public class UserWorkflowTest {
 
     @Test
     public void todoCrudManagement() {
-
         Configuration.fastSetValue = true;
-
         openApp();
 
         add("a", "b", "c");
