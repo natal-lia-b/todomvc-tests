@@ -1,7 +1,6 @@
 package todomvctest;
 
-import com.codeborne.selenide.Configuration;
-import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.*;
 import org.junit.jupiter.api.Test;
 
 import static com.codeborne.selenide.CollectionCondition.exactTexts;
@@ -12,9 +11,10 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.jsReturnsValue;
 
 public class UserWorkflowTest {
 
+    private final ElementsCollection todos = $$("#todo-list>li");
+
     @Test
     public void todoCrudManagement() {
-        Configuration.fastSetValue = true;
         openApp();
 
         add("a", "b", "c");
@@ -31,6 +31,7 @@ public class UserWorkflowTest {
     }
 
     private void openApp() {
+        Configuration.fastSetValue = true;
         open("http://todomvc4tasj.herokuapp.com/");
 
         String getObjectKeysLengthScript =
@@ -49,24 +50,33 @@ public class UserWorkflowTest {
     }
 
     private void todosShouldBe(String... texts) {
-        $$("#todo-list>li").shouldHave(exactTexts(texts));
+        todos.shouldHave(exactTexts(texts));
+    }
+
+    private SelenideElement todoBy(Condition condition) {
+        return todos.findBy(condition);
+    }
+
+    private SelenideElement findByText(String text) {
+        return todoBy(exactText(text));
+    }
+
+    private SelenideElement startEditing(String text, String newText) {
+        findByText(text).doubleClick();
+        return todoBy(cssClass("editing"))
+                .find(".edit").setValue(newText);
     }
 
     private void edit(String text, String newText) {
-        $$("#todo-list>li").findBy(exactText(text)).doubleClick();
-        $$("#todo-list>li").findBy(cssClass("editing"))
-                .find(".edit").setValue(newText).pressEnter();
+        startEditing(text, newText).pressEnter();
     }
 
     private void cancelEdit(String text, String newText) {
-        $$("#todo-list>li").findBy(exactText(text)).doubleClick();
-        $$("#todo-list>li").findBy(cssClass("editing"))
-                .find(".edit").setValue(newText).pressEscape();
+        startEditing(text, newText).pressEscape();
     }
 
     private void delete(String text) {
-        $$("#todo-list>li").findBy(exactText(text)).hover()
-                .find(".destroy").click();
+        findByText(text).hover().find(".destroy").click();
     }
 
     private void clearCompleted() {
@@ -74,7 +84,6 @@ public class UserWorkflowTest {
     }
 
     private void toggle(String text) {
-        $$("#todo-list>li").findBy(exactText(text))
-                .find(".toggle").click();
+        findByText(text).find(".toggle").click();
     }
 }
