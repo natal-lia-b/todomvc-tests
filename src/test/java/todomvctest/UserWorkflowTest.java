@@ -11,10 +11,9 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.jsReturnsValue;
 
 public class UserWorkflowTest {
 
-    private final ElementsCollection todos = $$("#todo-list>li");
-
     @Test
     public void todoCrudManagement() {
+        Configuration.fastSetValue = true;
         openApp();
 
         add("a", "b", "c");
@@ -31,7 +30,6 @@ public class UserWorkflowTest {
     }
 
     private void openApp() {
-        Configuration.fastSetValue = true;
         open("http://todomvc4tasj.herokuapp.com/");
 
         String getObjectKeysLengthScript =
@@ -53,17 +51,9 @@ public class UserWorkflowTest {
         todos.shouldHave(exactTexts(texts));
     }
 
-    private SelenideElement todoBy(Condition condition) {
-        return todos.findBy(condition);
-    }
-
-    private SelenideElement findByText(String text) {
-        return todoBy(exactText(text));
-    }
-
     private SelenideElement startEditing(String text, String newText) {
-        findByText(text).doubleClick();
-        return todoBy(cssClass("editing"))
+        todos.findBy(exactText(text)).doubleClick();
+        return todos.findBy(cssClass("editing"))
                 .find(".edit").setValue(newText);
     }
 
@@ -76,7 +66,7 @@ public class UserWorkflowTest {
     }
 
     private void delete(String text) {
-        findByText(text).hover().find(".destroy").click();
+        todos.findBy(exactText(text)).hover().find(".destroy").click();
     }
 
     private void clearCompleted() {
@@ -84,6 +74,8 @@ public class UserWorkflowTest {
     }
 
     private void toggle(String text) {
-        findByText(text).find(".toggle").click();
+        todos.findBy(exactText(text)).find(".toggle").click();
     }
+
+    private final ElementsCollection todos = $$("#todo-list>li");
 }
