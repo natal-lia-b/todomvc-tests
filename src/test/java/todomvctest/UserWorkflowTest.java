@@ -20,11 +20,13 @@ public class UserWorkflowTest {
         todosShouldBe("a", "b", "c");
 
         edit("b", "b edited");
+
         toggle("b edited");
         clearCompleted();
         todosShouldBe("a", "c");
 
         cancelEdit("c", "c to be canceled");
+
         delete("c");
         todosShouldBe("a");
     }
