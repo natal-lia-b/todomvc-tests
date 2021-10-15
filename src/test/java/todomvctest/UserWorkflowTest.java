@@ -2,6 +2,7 @@ package todomvctest;
 
 import com.codeborne.selenide.*;
 import org.junit.jupiter.api.Test;
+import todomvctest.testconfigs.BaseTest;
 
 import static com.codeborne.selenide.CollectionCondition.exactTexts;
 import static com.codeborne.selenide.Condition.cssClass;
@@ -9,11 +10,10 @@ import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Selenide.*;
 import static org.openqa.selenium.support.ui.ExpectedConditions.jsReturnsValue;
 
-public class UserWorkflowTest {
+public class UserWorkflowTest extends BaseTest {
 
     @Test
     public void todoCrudManagement() {
-        Configuration.fastSetValue = true;
         openApp();
 
         add("a", "b", "c");
@@ -32,8 +32,6 @@ public class UserWorkflowTest {
     }
 
     private void openApp() {
-        open("http://todomvc4tasj.herokuapp.com/");
-
         String getObjectKeysLengthScript =
                 "return (Object.keys(require.s.contexts._.defined).length === 39";
         String clearComplitedIsClickableScript =
