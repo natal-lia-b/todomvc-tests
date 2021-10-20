@@ -32,6 +32,8 @@ public class UserWorkflowTest extends BaseTest {
     }
 
     private void openApp() {
+        open("/");
+
         String getObjectKeysLengthScript =
                 "return (Object.keys(require.s.contexts._.defined).length === 39";
         String clearComplitedIsClickableScript =
