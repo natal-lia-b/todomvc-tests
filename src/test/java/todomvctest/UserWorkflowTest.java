@@ -1,22 +1,21 @@
 package todomvctest;
 
-import com.codeborne.selenide.*;
+import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.SelenideElement;
 import org.junit.jupiter.api.Test;
-import todomvctest.testconfigs.BaseTest;
 
 import static com.codeborne.selenide.CollectionCondition.exactTexts;
 import static com.codeborne.selenide.Condition.cssClass;
 import static com.codeborne.selenide.Condition.exactText;
-import static com.codeborne.selenide.Selenide.*;
-import static org.openqa.selenium.support.ui.ExpectedConditions.jsReturnsValue;
+import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.$$;
 
-public class UserWorkflowTest extends BaseTest {
+public class UserWorkflowTest extends TodoMvcBeforeEachTest {
 
     @Test
     public void todoCrudManagement() {
-        openApp();
-
         add("a", "b", "c");
+
         todosShouldBe("a", "b", "c");
 
         edit("b", "b edited");
@@ -31,16 +30,14 @@ public class UserWorkflowTest extends BaseTest {
         todosShouldBe("a");
     }
 
-    private void openApp() {
-        open("/");
+    @Test
+    void filtersTasks() {
+        add("a", "b", "c");
 
-        String getObjectKeysLengthScript =
-                "return (Object.keys(require.s.contexts._.defined).length === 39";
-        String clearComplitedIsClickableScript =
-                "$._data($('#clear-completed').get(0), 'events').hasOwnProperty('click'))";
-        Selenide.Wait().until(jsReturnsValue(
-                getObjectKeysLengthScript + " && " +
-                        clearComplitedIsClickableScript));
+        toggle("b");
+
+        todosByFilterShouldHaveTexts("Active", "a", "c");
+        todosByFilterShouldHaveTexts("Completed", "b");
     }
 
     private void add(String... texts) {
@@ -51,6 +48,11 @@ public class UserWorkflowTest extends BaseTest {
 
     private void todosShouldBe(String... texts) {
         todos.shouldHave(exactTexts(texts));
+    }
+
+    private void todosByFilterShouldBe(String filter, String... texts) {
+        todos.filterBy(Condition.cssClass(filter.toLowerCase()))
+                .shouldHave(exactTexts(texts));
     }
 
     private SelenideElement startEditing(String text, String newText) {
@@ -67,10 +69,6 @@ public class UserWorkflowTest extends BaseTest {
         startEditing(text, newText).pressEscape();
     }
 
-    private void delete(String text) {
-        todos.findBy(exactText(text)).hover().find(".destroy").click();
-    }
-
     private void clearCompleted() {
         $("#clear-completed").click();
     }
@@ -79,5 +77,12 @@ public class UserWorkflowTest extends BaseTest {
         todos.findBy(exactText(text)).find(".toggle").click();
     }
 
-    private final ElementsCollection todos = $$("#todo-list>li");
+    private void clickFilter(String filter) {
+        $$("#filters>li").findBy(exactText(filter)).click();
+    }
+
+    private void todosByFilterShouldHaveTexts(String filter, String... texts) {
+        clickFilter(filter);
+        todosByFilterShouldBe(filter, texts);
+    }
 }
