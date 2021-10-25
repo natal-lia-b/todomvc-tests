@@ -1,23 +1,25 @@
 package todomvctest;
 
 import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.WebDriverRunner;
 import org.junit.jupiter.api.BeforeEach;
 import todomvctest.testconfigs.BaseTest;
 
-import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Selenide.open;
 import static org.openqa.selenium.support.ui.ExpectedConditions.jsReturnsValue;
 
 public class TodoMvcBeforeEachTest extends BaseTest {
 
     @BeforeEach
-    public void beforeTests() {
-        openApp();
+    public void setupApp() {
+        if (WebDriverRunner.hasWebDriverStarted()) {
+            Selenide.clearBrowserLocalStorage();
+        }
 
-        clearData();
+        openApp();
     }
 
-    private void openApp() {
+    private static void openApp() {
         open("/");
 
         String getObjectKeysLengthScript =
@@ -28,16 +30,4 @@ public class TodoMvcBeforeEachTest extends BaseTest {
                 getObjectKeysLengthScript + " && " +
                         clearComplitedIsClickableScript));
     }
-
-
-    public void delete(String text) {
-        todos.findBy(exactText(text)).hover().find(".destroy").click();
-    }
-
-    private void clearData() {
-        while (!todos.isEmpty()) {
-            delete(todos.first().text());
-        }
-    }
-
 }

@@ -1,16 +1,17 @@
 package todomvctest;
 
-import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import org.junit.jupiter.api.Test;
 
 import static com.codeborne.selenide.CollectionCondition.exactTexts;
-import static com.codeborne.selenide.Condition.cssClass;
-import static com.codeborne.selenide.Condition.exactText;
+import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 
-public class UserWorkflowTest extends TodoMvcBeforeEachTest {
+public class TodoMvcTest extends TodoMvcBeforeEachTest {
+
+    public final ElementsCollection todos = $$("#todo-list>li");
 
     @Test
     public void todoCrudManagement() {
@@ -36,8 +37,14 @@ public class UserWorkflowTest extends TodoMvcBeforeEachTest {
 
         toggle("b");
 
-        todosByFilterShouldHaveTexts("Active", "a", "c");
-        todosByFilterShouldHaveTexts("Completed", "b");
+        filterActive();
+        todosShouldBe("a", "c");
+
+        filterCompleted();
+        todosShouldBe("b");
+
+        filterAll();
+        todosShouldBe("a", "b", "c");
     }
 
     private void add(String... texts) {
@@ -47,12 +54,7 @@ public class UserWorkflowTest extends TodoMvcBeforeEachTest {
     }
 
     private void todosShouldBe(String... texts) {
-        todos.shouldHave(exactTexts(texts));
-    }
-
-    private void todosByFilterShouldBe(String filter, String... texts) {
-        todos.filterBy(Condition.cssClass(filter.toLowerCase()))
-                .shouldHave(exactTexts(texts));
+        todos.filterBy(visible).shouldHave(exactTexts(texts));
     }
 
     private SelenideElement startEditing(String text, String newText) {
@@ -69,6 +71,10 @@ public class UserWorkflowTest extends TodoMvcBeforeEachTest {
         startEditing(text, newText).pressEscape();
     }
 
+    public void delete(String text) {
+        todos.findBy(exactText(text)).hover().find(".destroy").click();
+    }
+
     private void clearCompleted() {
         $("#clear-completed").click();
     }
@@ -77,12 +83,15 @@ public class UserWorkflowTest extends TodoMvcBeforeEachTest {
         todos.findBy(exactText(text)).find(".toggle").click();
     }
 
-    private void clickFilter(String filter) {
-        $$("#filters>li").findBy(exactText(filter)).click();
+    private void filterAll() {
+        $("[href='#/']").click();
     }
 
-    private void todosByFilterShouldHaveTexts(String filter, String... texts) {
-        clickFilter(filter);
-        todosByFilterShouldBe(filter, texts);
+    private void filterActive() {
+        $("[href='#/active']").click();
+    }
+
+    private void filterCompleted() {
+        $("[href='#/completed']").click();
     }
 }
