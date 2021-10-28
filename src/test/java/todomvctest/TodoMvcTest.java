@@ -1,22 +1,26 @@
 package todomvctest;
 
 import com.codeborne.selenide.ElementsCollection;
+import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.WebDriverRunner;
 import org.junit.jupiter.api.Test;
+import todomvctest.testconfigs.BaseTest;
 
 import static com.codeborne.selenide.CollectionCondition.exactTexts;
 import static com.codeborne.selenide.Condition.*;
-import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.$$;
+import static com.codeborne.selenide.Selenide.*;
+import static org.openqa.selenium.support.ui.ExpectedConditions.jsReturnsValue;
 
-public class TodoMvcTest extends TodoMvcBeforeEachTest {
+public class TodoMvcTest extends BaseTest {
 
     public final ElementsCollection todos = $$("#todo-list>li");
 
     @Test
     public void todoCrudManagement() {
-        add("a", "b", "c");
+        setupAppBeforeTest();
 
+        add("a", "b", "c");
         todosShouldBe("a", "b", "c");
 
         edit("b", "b edited");
@@ -33,9 +37,7 @@ public class TodoMvcTest extends TodoMvcBeforeEachTest {
 
     @Test
     void filtersTasks() {
-        add("a", "b", "c");
-
-        toggle("b");
+        setupAppBeforeFilterTestWithTodos("a", "b", "c");
 
         filterActive();
         todosShouldBe("a", "c");
@@ -45,6 +47,33 @@ public class TodoMvcTest extends TodoMvcBeforeEachTest {
 
         filterAll();
         todosShouldBe("a", "b", "c");
+    }
+
+    private void setupAppBeforeTest() {
+        if (WebDriverRunner.hasWebDriverStarted()) {
+            Selenide.clearBrowserLocalStorage();
+        }
+
+        openApp();
+    }
+
+    private void setupAppBeforeFilterTestWithTodos(String... texts) {
+        setupAppBeforeTest();
+
+        add(texts);
+        toggle("b");
+    }
+
+    private static void openApp() {
+        open("/");
+
+        String getObjectKeysLengthScript =
+                "return (Object.keys(require.s.contexts._.defined).length === 39";
+        String clearComplitedIsClickableScript =
+                "$._data($('#clear-completed').get(0), 'events').hasOwnProperty('click'))";
+        Selenide.Wait().until(jsReturnsValue(
+                getObjectKeysLengthScript + " && " +
+                        clearComplitedIsClickableScript));
     }
 
     private void add(String... texts) {
