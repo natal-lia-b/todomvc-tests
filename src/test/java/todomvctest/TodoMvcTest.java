@@ -18,9 +18,7 @@ public class TodoMvcTest extends BaseTest {
 
     @Test
     public void todoCrudManagement() {
-        setupAppBeforeTest();
-
-        add("a", "b", "c");
+        givenAppOpenedWith("a", "b", "c");
         todosShouldBe("a", "b", "c");
 
         edit("b", "b edited");
@@ -37,7 +35,8 @@ public class TodoMvcTest extends BaseTest {
 
     @Test
     void filtersTasks() {
-        setupAppBeforeFilterTestWithTodos("a", "b", "c");
+        givenAppOpenedWith("a", "b", "c");
+        toggle("b");
 
         filterActive();
         todosShouldBe("a", "c");
@@ -49,7 +48,7 @@ public class TodoMvcTest extends BaseTest {
         todosShouldBe("a", "b", "c");
     }
 
-    private void setupAppBeforeTest() {
+    private void givenAppOpened() {
         if (WebDriverRunner.hasWebDriverStarted()) {
             Selenide.clearBrowserLocalStorage();
         }
@@ -57,23 +56,22 @@ public class TodoMvcTest extends BaseTest {
         openApp();
     }
 
-    private void setupAppBeforeFilterTestWithTodos(String... texts) {
-        setupAppBeforeTest();
-
+    private void givenAppOpenedWith(String... texts) {
+        givenAppOpened();
         add(texts);
-        toggle("b");
     }
 
     private static void openApp() {
         open("/");
 
-        String getObjectKeysLengthScript =
+        String requireJsContextsLoaded =
                 "return (Object.keys(require.s.contexts._.defined).length === 39";
-        String clearComplitedIsClickableScript =
+        String clearCompletedIsClickable =
                 "$._data($('#clear-completed').get(0), 'events').hasOwnProperty('click'))";
         Selenide.Wait().until(jsReturnsValue(
-                getObjectKeysLengthScript + " && " +
-                        clearComplitedIsClickableScript));
+                requireJsContextsLoaded
+                 + " && " + clearCompletedIsClickable
+        ));
     }
 
     private void add(String... texts) {
