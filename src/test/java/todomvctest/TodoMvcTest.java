@@ -64,13 +64,13 @@ public class TodoMvcTest extends BaseTest {
     private static void openApp() {
         open("/");
 
-        String requireJsContextsLoaded =
+        String areRequireJsContextsLoaded =
                 "return (Object.keys(require.s.contexts._.defined).length === 39";
-        String clearCompletedIsClickable =
+        String isClearCompletedClickable =
                 "$._data($('#clear-completed').get(0), 'events').hasOwnProperty('click'))";
         Selenide.Wait().until(jsReturnsValue(
-                requireJsContextsLoaded
-                 + " && " + clearCompletedIsClickable
+                areRequireJsContextsLoaded
+                + " && " + isClearCompletedClickable
         ));
     }
 
