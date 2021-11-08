@@ -1,12 +1,10 @@
 package todomvctest;
 
-import com.codeborne.selenide.ElementsCollection;
-import com.codeborne.selenide.Selenide;
-import com.codeborne.selenide.SelenideElement;
-import com.codeborne.selenide.WebDriverRunner;
+import com.codeborne.selenide.*;
 import org.junit.jupiter.api.Test;
 import todomvctest.testconfigs.BaseTest;
 
+import static com.codeborne.selenide.CollectionCondition.empty;
 import static com.codeborne.selenide.CollectionCondition.exactTexts;
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
@@ -48,6 +46,62 @@ public class TodoMvcTest extends BaseTest {
         todosShouldBe("a", "b", "c");
     }
 
+    @Test
+    void tasksCountTest() {
+        givenAppOpenedWith("a", "b", "c");
+        tasksCountShouldBe(3);
+
+        toggle("b");
+        tasksCountShouldBe(2);
+
+        toggleAll();
+        tasksCountShouldBe(0);
+
+        toggleAll();
+        tasksCountShouldBe(3);
+    }
+
+    @Test
+    void completeTasks() {
+        givenAppOpenedWith("a", "b", "c");
+
+        toggle("b");
+        completedTasksShouldBe("b");
+
+        toggleAll();
+        completedTasksShouldBe("a", "b", "c");
+    }
+
+    @Test
+    void unCompleteAllTasks() {
+        givenAppOpenedWith("a", "b", "c");
+        toggleAll();
+
+        toggleAll();
+        completedTasksShouldBeEmpty();
+    }
+
+    @Test
+    void clearCompletedTest() {
+        givenAppOpenedWith("a", "b", "c");
+        clearCompletedShouldBe(not(visible));
+
+        toggleAll();
+        clearCompletedShouldBe(visible);
+
+        clearCompleted();
+        clearCompletedShouldBe(not(visible));
+    }
+
+    @Test
+    void clearCompleteAllTasks() {
+        givenAppOpenedWith("a", "b", "c");
+        toggleAll();
+
+        clearCompleted();
+        todosShouldBeEmpty();
+    }
+
     private void givenAppOpened() {
         if (WebDriverRunner.hasWebDriverStarted()) {
             Selenide.clearBrowserLocalStorage();
@@ -84,6 +138,10 @@ public class TodoMvcTest extends BaseTest {
         todos.filterBy(visible).shouldHave(exactTexts(texts));
     }
 
+    private void todosShouldBeEmpty() {
+        todos.shouldHave(CollectionCondition.size(0));
+    }
+
     private SelenideElement startEditing(String text, String newText) {
         todos.findBy(exactText(text)).doubleClick();
         return todos.findBy(cssClass("editing"))
@@ -106,8 +164,24 @@ public class TodoMvcTest extends BaseTest {
         $("#clear-completed").click();
     }
 
+    private void clearCompletedShouldBe(Condition isVisible) {
+        $("#clear-completed").shouldBe(isVisible);
+    }
+
+    private void completedTasksShouldBe(String... texts) {
+        todos.filterBy(cssClass("completed")).shouldBe(exactTexts(texts));
+    }
+
+    private void completedTasksShouldBeEmpty(){
+        todos.filterBy(cssClass("completed")).shouldBe(empty);
+    }
+
     private void toggle(String text) {
-        todos.findBy(exactText(text)).find(".toggle").click();
+        todos.findBy(exactText(text)).$(".toggle").click();
+    }
+
+    private void toggleAll() {
+        $("#toggle-all").click();
     }
 
     private void filterAll() {
@@ -120,5 +194,9 @@ public class TodoMvcTest extends BaseTest {
 
     private void filterCompleted() {
         $("[href='#/completed']").click();
+    }
+
+    private void tasksCountShouldBe(int tasksCount) {
+        $("#todo-count>strong").shouldBe(exactText(String.valueOf(tasksCount)));
     }
 }
