@@ -15,17 +15,17 @@ public class TodoMvcTest extends BaseTest {
     public final ElementsCollection todos = $$("#todo-list>li");
 
     @Test
-    public void todoCrudManagement() {
+    public void crudTasksManagement() {
         givenAppOpenedWith("a", "b", "c");
         todosShouldBe("a", "b", "c");
 
-        edit("b", "b edited");
+        editWithEnter("b", "b edited");
 
         toggle("b edited");
         clearCompleted();
         todosShouldBe("a", "c");
 
-        cancelEdit("c", "c to be canceled");
+        cancelEditWithEscape("c", "c to be canceled");
 
         delete("c");
         todosShouldBe("a");
@@ -47,6 +47,36 @@ public class TodoMvcTest extends BaseTest {
     }
 
     @Test
+    void addsTasks() {
+        givenAppOpenedWith("a", "b", "c");
+        todosShouldBe("a", "b", "c");
+    }
+
+    @Test
+    void editsTaskWithEnter() {
+        givenAppOpenedWith("a", "b", "c");
+
+        editWithEnter("b", "b edited");
+        todosShouldBe("a", "b edited", "c");
+    }
+
+    @Test
+    void editsTasksWithTab() {
+        givenAppOpenedWith("a", "b", "c");
+
+        editWithTab("b", "b edited");
+        todosShouldBe("a", "b edited", "c");
+    }
+
+    @Test
+    void cancelsEditTasksWithEscape() {
+        givenAppOpenedWith("a", "b", "c");
+
+        cancelEditWithEscape("b", "b edited");
+        todosShouldBe("a", "b", "c");
+    }
+
+    @Test
     void tasksCountTest() {
         givenAppOpenedWith("a", "b", "c");
         tasksCountShouldBe(3);
@@ -62,24 +92,48 @@ public class TodoMvcTest extends BaseTest {
     }
 
     @Test
-    void completeTasks() {
+    void completesTask() {
         givenAppOpenedWith("a", "b", "c");
 
         toggle("b");
         completedTasksShouldBe("b");
+    }
+
+    @Test
+    void unCompletesTask() {
+        givenAppOpenedWith("a", "b", "c");
+        toggle("b");
+
+        toggle("b");
+        completedTasksShouldBeEmpty();
+    }
+
+    @Test
+    void completesAllTasks() {
+        givenAppOpenedWith("a", "b", "c");
 
         toggleAll();
         completedTasksShouldBe("a", "b", "c");
     }
 
-    @Test
-    void unCompleteAllTasks() {
+   @Test
+    void unCompletesAllTasks() {
         givenAppOpenedWith("a", "b", "c");
         toggleAll();
 
         toggleAll();
         completedTasksShouldBeEmpty();
     }
+
+    @Test
+    void deletesTask() {
+        givenAppOpenedWith("a", "b", "c");
+        toggle("b");
+
+        delete("b");
+        todosShouldBe("a", "c");
+    }
+
 
     @Test
     void clearCompletedTest() {
@@ -94,7 +148,7 @@ public class TodoMvcTest extends BaseTest {
     }
 
     @Test
-    void clearCompleteAllTasks() {
+    void clearCompletedAllTasks() {
         givenAppOpenedWith("a", "b", "c");
         toggleAll();
 
@@ -148,15 +202,19 @@ public class TodoMvcTest extends BaseTest {
                 .find(".edit").setValue(newText);
     }
 
-    private void edit(String text, String newText) {
+    private void editWithEnter(String text, String newText) {
         startEditing(text, newText).pressEnter();
     }
 
-    private void cancelEdit(String text, String newText) {
+    private void cancelEditWithEscape(String text, String newText) {
         startEditing(text, newText).pressEscape();
     }
 
-    public void delete(String text) {
+    private void editWithTab(String text, String newText) {
+        startEditing(text, newText).pressTab();
+    }
+
+    private void delete(String text) {
         todos.findBy(exactText(text)).hover().find(".destroy").click();
     }
 
