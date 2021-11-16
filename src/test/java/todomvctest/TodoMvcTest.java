@@ -2,8 +2,10 @@ package todomvctest;
 
 import com.codeborne.selenide.*;
 import org.junit.jupiter.api.Test;
+import org.openqa.selenium.Keys;
 import todomvctest.testconfigs.BaseTest;
 
+import static com.codeborne.selenide.CollectionCondition.size;
 import static com.codeborne.selenide.CollectionCondition.empty;
 import static com.codeborne.selenide.CollectionCondition.exactTexts;
 import static com.codeborne.selenide.Condition.*;
@@ -12,27 +14,30 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.jsReturnsValue;
 
 public class TodoMvcTest extends BaseTest {
 
-    public final ElementsCollection todos = $$("#todo-list>li");
+    private final ElementsCollection todos = $$("#todo-list>li");
+    private final SelenideElement clearCompleted = $("#clear-completed");
+    private final String completedClass = "completed";
+    private final String activeClass = "active";
 
     @Test
-    public void crudTasksManagement() {
+    public void todoCrudManagement() {
         givenAppOpenedWith("a", "b", "c");
         todosShouldBe("a", "b", "c");
 
-        editWithEnter("b", "b edited");
+        editWith(Keys.ENTER, "b", "b edited");
 
         toggle("b edited");
         clearCompleted();
         todosShouldBe("a", "c");
 
-        cancelEditWithEscape("c", "c to be canceled");
+        cancelEditing("c", "c to be canceled");
 
         delete("c");
         todosShouldBe("a");
     }
 
     @Test
-    void filtersTasks() {
+    void filtersTodos() {
         givenAppOpenedWith("a", "b", "c");
         toggle("b");
 
@@ -47,113 +52,227 @@ public class TodoMvcTest extends BaseTest {
     }
 
     @Test
-    void addsTasks() {
-        givenAppOpenedWith("a", "b", "c");
+    void noAddAfterOpen() {
+        givenAppOpened();
+
+        /* no Act */
+
+        todosShouldBeEmpty();
+        footerShouldBe(hidden);
+    }
+
+    @Test
+    void addsTodo() {
+        givenAppOpened();
+
+        add("a");
+
+        todosShouldBe("a");
+        todosOfClassShouldBe(activeClass, "a");
+        todosOfClassShouldBeEmpty(completedClass);
+        footerShouldBe(visible);
+        clearCompletedShouldBe(hidden);
+        itemsLeftShouldBe(1);
+    }
+
+    @Test
+    void addsTodos() {
+        givenAppOpened();
+
+        add("a", "b", "c");
+
         todosShouldBe("a", "b", "c");
+        todosOfClassShouldBe(activeClass, "a", "b", "c");
+        todosOfClassShouldBeEmpty(completedClass);
+        footerShouldBe(visible);
+        clearCompletedShouldBe(hidden);
+        itemsLeftShouldBe(3);
     }
 
     @Test
-    void editsTaskWithEnter() {
+    void editsTodoWithEnter() {
         givenAppOpenedWith("a", "b", "c");
 
-        editWithEnter("b", "b edited");
+        editWith(Keys.ENTER, "b", "b edited");
+
         todosShouldBe("a", "b edited", "c");
+        todosOfClassShouldBe(activeClass, "a", "b edited", "c");
+        todosOfClassShouldBeEmpty(completedClass);
+        footerShouldBe(visible);
+        clearCompletedShouldBe(hidden);
+        itemsLeftShouldBe(3);
     }
 
     @Test
-    void editsTasksWithTab() {
+    void editsTodoByFocusChange() {
         givenAppOpenedWith("a", "b", "c");
 
-        editWithTab("b", "b edited");
+        editWith(Keys.TAB, "b", "b edited");
+
         todosShouldBe("a", "b edited", "c");
+        todosOfClassShouldBe(activeClass, "a", "b edited", "c");
+        todosOfClassShouldBeEmpty(completedClass);
+        footerShouldBe(visible);
+        clearCompletedShouldBe(hidden);
+        itemsLeftShouldBe(3);
     }
 
     @Test
-    void cancelsEditTasksWithEscape() {
+    void cancelsEditingTodo() {
         givenAppOpenedWith("a", "b", "c");
 
-        cancelEditWithEscape("b", "b edited");
+        cancelEditing("b", "b edited");
+
         todosShouldBe("a", "b", "c");
+        todosOfClassShouldBe(activeClass, "a", "b", "c");
+        todosOfClassShouldBeEmpty(completedClass);
+        footerShouldBe(visible);
+        clearCompletedShouldBe(hidden);
+        itemsLeftShouldBe(3);
     }
 
     @Test
-    void tasksCountTest() {
-        givenAppOpenedWith("a", "b", "c");
-        tasksCountShouldBe(3);
-
-        toggle("b");
-        tasksCountShouldBe(2);
-
-        toggleAll();
-        tasksCountShouldBe(0);
-
-        toggleAll();
-        tasksCountShouldBe(3);
-    }
-
-    @Test
-    void completesTask() {
+    void completesTodo() {
         givenAppOpenedWith("a", "b", "c");
 
         toggle("b");
-        completedTasksShouldBe("b");
+
+        todosOfClassShouldBe(completedClass, "b");
+        todosOfClassShouldBe(activeClass, "a", "c");
+        clearCompletedShouldBe(visible);
+        itemsLeftShouldBe(2);
     }
 
     @Test
-    void unCompletesTask() {
+    void unCompletesTodo() {
         givenAppOpenedWith("a", "b", "c");
         toggle("b");
 
         toggle("b");
-        completedTasksShouldBeEmpty();
+
+        todosOfClassShouldBeEmpty(completedClass);
+        todosOfClassShouldBe(activeClass, "a", "b", "c");
+        footerShouldBe(visible);
+        clearCompletedShouldBe(hidden);
+        itemsLeftShouldBe(3);
     }
 
     @Test
-    void completesAllTasks() {
+    void completesAllTodos() {
         givenAppOpenedWith("a", "b", "c");
 
         toggleAll();
-        completedTasksShouldBe("a", "b", "c");
-    }
 
-   @Test
-    void unCompletesAllTasks() {
-        givenAppOpenedWith("a", "b", "c");
-        toggleAll();
-
-        toggleAll();
-        completedTasksShouldBeEmpty();
+        todosOfClassShouldBe(completedClass, "a", "b", "c");
+        todosOfClassShouldBeEmpty(activeClass);
+        clearCompletedShouldBe(visible);
+        itemsLeftShouldBe(0);
     }
 
     @Test
-    void deletesTask() {
+    void completeAllTodosWithSomeAlreadyCompleted() {
+        givenAppOpenedWith("a", "b", "c");
+        toggle("b");
+
+        toggleAll();
+
+        todosOfClassShouldBe(completedClass, "a", "b", "c");
+        todosOfClassShouldBeEmpty(activeClass);
+        clearCompletedShouldBe(visible);
+        itemsLeftShouldBe(0);
+    }
+
+    @Test
+    void unCompletesAllTodos() {
+        givenAppOpenedWith("a", "b", "c");
+        toggleAll();
+
+        toggleAll();
+
+        todosOfClassShouldBeEmpty(completedClass);
+        todosOfClassShouldBe(activeClass, "a", "b", "c");
+        footerShouldBe(visible);
+        clearCompletedShouldBe(hidden);
+        itemsLeftShouldBe(3);
+    }
+
+    @Test
+    void deletesTodo() {
+        givenAppOpenedWith("a", "b", "c");
+
+        delete("b");
+
+        todosShouldBe("a", "c");
+        todosOfClassShouldBeEmpty(completedClass);
+        todosOfClassShouldBe(activeClass, "a", "c");
+        footerShouldBe(visible);
+        clearCompletedShouldBe(hidden);
+        itemsLeftShouldBe(2);
+    }
+
+    @Test
+    void deletesTodoByEditingToBlankString() {
+        givenAppOpenedWith("a", "b", "c");
+
+        editWith(Keys.ENTER, "b", " ");
+
+        todosShouldBe("a", "c");
+        todosOfClassShouldBeEmpty(completedClass);
+        todosOfClassShouldBe(activeClass, "a", "c");
+        footerShouldBe(visible);
+        clearCompletedShouldBe(hidden);
+        itemsLeftShouldBe(2);
+    }
+
+    @Test
+    void deletesCompletedTodo() {
         givenAppOpenedWith("a", "b", "c");
         toggle("b");
 
         delete("b");
+
         todosShouldBe("a", "c");
-    }
-
-
-    @Test
-    void clearCompletedTest() {
-        givenAppOpenedWith("a", "b", "c");
-        clearCompletedShouldBe(not(visible));
-
-        toggleAll();
-        clearCompletedShouldBe(visible);
-
-        clearCompleted();
-        clearCompletedShouldBe(not(visible));
+        todosOfClassShouldBeEmpty(completedClass);
+        todosOfClassShouldBe(activeClass, "a", "c");
+        footerShouldBe(visible);
+        clearCompletedShouldBe(hidden);
+        itemsLeftShouldBe(2);
     }
 
     @Test
-    void clearCompletedAllTasks() {
-        givenAppOpenedWith("a", "b", "c");
-        toggleAll();
+    void deletesLastTodo() {
+        givenAppOpenedWith("a");
 
-        clearCompleted();
+        delete("a");
+
         todosShouldBeEmpty();
+        footerShouldBe(hidden);
+    }
+
+    @Test
+    void clearCompletedTodo() {
+        givenAppOpenedWith("a", "b", "c");
+        toggle("b");
+
+        clearCompleted();
+
+        todosShouldBe("a", "c");
+        todosOfClassShouldBeEmpty(completedClass);
+        todosOfClassShouldBe(activeClass, "a", "c");
+        footerShouldBe(visible);
+        clearCompletedShouldBe(hidden);
+        itemsLeftShouldBe(2);
+    }
+
+    @Test
+    void clearCompletedAllTodos() {
+        givenAppOpenedWith("a", "b", "c");
+        toggleAll();
+
+        clearCompleted();
+
+        todosShouldBeEmpty();
+        footerShouldBe(hidden);
     }
 
     private void givenAppOpened() {
@@ -193,7 +312,7 @@ public class TodoMvcTest extends BaseTest {
     }
 
     private void todosShouldBeEmpty() {
-        todos.shouldHave(CollectionCondition.size(0));
+        todos.shouldHave(size(0));
     }
 
     private SelenideElement startEditing(String text, String newText) {
@@ -202,16 +321,12 @@ public class TodoMvcTest extends BaseTest {
                 .find(".edit").setValue(newText);
     }
 
-    private void editWithEnter(String text, String newText) {
-        startEditing(text, newText).pressEnter();
+    private void editWith(CharSequence key, String text, String newText) {
+        startEditing(text, newText).sendKeys(key);
     }
 
-    private void cancelEditWithEscape(String text, String newText) {
-        startEditing(text, newText).pressEscape();
-    }
-
-    private void editWithTab(String text, String newText) {
-        startEditing(text, newText).pressTab();
+    private void cancelEditing(String text, String newText) {
+        editWith(Keys.ESCAPE, text, newText);
     }
 
     private void delete(String text) {
@@ -219,23 +334,27 @@ public class TodoMvcTest extends BaseTest {
     }
 
     private void clearCompleted() {
-        $("#clear-completed").click();
+        clearCompleted.click();
     }
 
-    private void clearCompletedShouldBe(Condition isVisible) {
-        $("#clear-completed").shouldBe(isVisible);
+    private void footerShouldBe(Condition condition) {
+        $("#footer").shouldBe(condition);
     }
 
-    private void completedTasksShouldBe(String... texts) {
-        todos.filterBy(cssClass("completed")).shouldBe(exactTexts(texts));
+    private void clearCompletedShouldBe(Condition condition) {
+        clearCompleted.shouldBe(condition);
     }
 
-    private void completedTasksShouldBeEmpty(){
-        todos.filterBy(cssClass("completed")).shouldBe(empty);
+    private void todosOfClassShouldBe(String cssClass, String... texts) {
+        todos.filterBy(cssClass(cssClass)).shouldBe(exactTexts(texts));
+    }
+
+    private void todosOfClassShouldBeEmpty(String cssClass){
+        todos.filterBy(cssClass(cssClass)).shouldBe(empty);
     }
 
     private void toggle(String text) {
-        todos.findBy(exactText(text)).$(".toggle").click();
+        todos.findBy(exactText(text)).find(".toggle").click();
     }
 
     private void toggleAll() {
@@ -254,7 +373,7 @@ public class TodoMvcTest extends BaseTest {
         $("[href='#/completed']").click();
     }
 
-    private void tasksCountShouldBe(int tasksCount) {
-        $("#todo-count>strong").shouldBe(exactText(String.valueOf(tasksCount)));
+    private void itemsLeftShouldBe(int number) {
+        $("#todo-count>strong").shouldBe(exactText(String.valueOf(number)));
     }
 }
