@@ -52,26 +52,17 @@ public class TodoMvcTest extends BaseTest {
     }
 
     @Test
-    void noAddAfterOpen() {
-        givenAppOpened();
-
-        /* no Act */
-
-        todosShouldBeEmpty();
-        footerShouldBe(hidden);
-    }
-
-    @Test
     void addsTodo() {
         givenAppOpened();
 
+        /* WHEN nothing */
+
+        todosShouldBeEmpty();
+
+        /* WHEN */
         add("a");
 
         todosShouldBe("a");
-        todosOfClassShouldBe(activeClass, "a");
-        todosOfClassShouldBeEmpty(completedClass);
-        footerShouldBe(visible);
-        clearCompletedShouldBe(hidden);
         itemsLeftShouldBe(1);
     }
 
@@ -82,10 +73,6 @@ public class TodoMvcTest extends BaseTest {
         add("a", "b", "c");
 
         todosShouldBe("a", "b", "c");
-        todosOfClassShouldBe(activeClass, "a", "b", "c");
-        todosOfClassShouldBeEmpty(completedClass);
-        footerShouldBe(visible);
-        clearCompletedShouldBe(hidden);
         itemsLeftShouldBe(3);
     }
 
@@ -96,10 +83,6 @@ public class TodoMvcTest extends BaseTest {
         editWith(Keys.ENTER, "b", "b edited");
 
         todosShouldBe("a", "b edited", "c");
-        todosOfClassShouldBe(activeClass, "a", "b edited", "c");
-        todosOfClassShouldBeEmpty(completedClass);
-        footerShouldBe(visible);
-        clearCompletedShouldBe(hidden);
         itemsLeftShouldBe(3);
     }
 
@@ -110,10 +93,6 @@ public class TodoMvcTest extends BaseTest {
         editWith(Keys.TAB, "b", "b edited");
 
         todosShouldBe("a", "b edited", "c");
-        todosOfClassShouldBe(activeClass, "a", "b edited", "c");
-        todosOfClassShouldBeEmpty(completedClass);
-        footerShouldBe(visible);
-        clearCompletedShouldBe(hidden);
         itemsLeftShouldBe(3);
     }
 
@@ -124,10 +103,6 @@ public class TodoMvcTest extends BaseTest {
         cancelEditing("b", "b edited");
 
         todosShouldBe("a", "b", "c");
-        todosOfClassShouldBe(activeClass, "a", "b", "c");
-        todosOfClassShouldBeEmpty(completedClass);
-        footerShouldBe(visible);
-        clearCompletedShouldBe(hidden);
         itemsLeftShouldBe(3);
     }
 
@@ -139,22 +114,7 @@ public class TodoMvcTest extends BaseTest {
 
         todosOfClassShouldBe(completedClass, "b");
         todosOfClassShouldBe(activeClass, "a", "c");
-        clearCompletedShouldBe(visible);
         itemsLeftShouldBe(2);
-    }
-
-    @Test
-    void unCompletesTodo() {
-        givenAppOpenedWith("a", "b", "c");
-        toggle("b");
-
-        toggle("b");
-
-        todosOfClassShouldBeEmpty(completedClass);
-        todosOfClassShouldBe(activeClass, "a", "b", "c");
-        footerShouldBe(visible);
-        clearCompletedShouldBe(hidden);
-        itemsLeftShouldBe(3);
     }
 
     @Test
@@ -165,7 +125,6 @@ public class TodoMvcTest extends BaseTest {
 
         todosOfClassShouldBe(completedClass, "a", "b", "c");
         todosOfClassShouldBeEmpty(activeClass);
-        clearCompletedShouldBe(visible);
         itemsLeftShouldBe(0);
     }
 
@@ -178,8 +137,19 @@ public class TodoMvcTest extends BaseTest {
 
         todosOfClassShouldBe(completedClass, "a", "b", "c");
         todosOfClassShouldBeEmpty(activeClass);
-        clearCompletedShouldBe(visible);
         itemsLeftShouldBe(0);
+    }
+
+    @Test
+    void unCompletesTodo() {
+        givenAppOpenedWith("a", "b", "c");
+        toggle("b");
+
+        toggle("b");
+
+        todosOfClassShouldBeEmpty(completedClass);
+        todosOfClassShouldBe(activeClass, "a", "b", "c");
+        itemsLeftShouldBe(3);
     }
 
     @Test
@@ -191,8 +161,6 @@ public class TodoMvcTest extends BaseTest {
 
         todosOfClassShouldBeEmpty(completedClass);
         todosOfClassShouldBe(activeClass, "a", "b", "c");
-        footerShouldBe(visible);
-        clearCompletedShouldBe(hidden);
         itemsLeftShouldBe(3);
     }
 
@@ -203,24 +171,16 @@ public class TodoMvcTest extends BaseTest {
         delete("b");
 
         todosShouldBe("a", "c");
-        todosOfClassShouldBeEmpty(completedClass);
-        todosOfClassShouldBe(activeClass, "a", "c");
-        footerShouldBe(visible);
-        clearCompletedShouldBe(hidden);
         itemsLeftShouldBe(2);
     }
 
     @Test
-    void deletesTodoByEditingToBlankString() {
+    void deletesTodoByEditingToBlank() {
         givenAppOpenedWith("a", "b", "c");
 
         editWith(Keys.ENTER, "b", " ");
 
         todosShouldBe("a", "c");
-        todosOfClassShouldBeEmpty(completedClass);
-        todosOfClassShouldBe(activeClass, "a", "c");
-        footerShouldBe(visible);
-        clearCompletedShouldBe(hidden);
         itemsLeftShouldBe(2);
     }
 
@@ -232,10 +192,6 @@ public class TodoMvcTest extends BaseTest {
         delete("b");
 
         todosShouldBe("a", "c");
-        todosOfClassShouldBeEmpty(completedClass);
-        todosOfClassShouldBe(activeClass, "a", "c");
-        footerShouldBe(visible);
-        clearCompletedShouldBe(hidden);
         itemsLeftShouldBe(2);
     }
 
@@ -246,21 +202,20 @@ public class TodoMvcTest extends BaseTest {
         delete("a");
 
         todosShouldBeEmpty();
-        footerShouldBe(hidden);
     }
 
     @Test
     void clearCompletedTodo() {
-        givenAppOpenedWith("a", "b", "c");
-        toggle("b");
+        givenAppOpenedWith("a", "b", "c", "d", "e");
+        toggle("a");
+        toggle("c");
+        toggle("e");
 
         clearCompleted();
 
-        todosShouldBe("a", "c");
+        todosShouldBe("b", "d");
         todosOfClassShouldBeEmpty(completedClass);
-        todosOfClassShouldBe(activeClass, "a", "c");
-        footerShouldBe(visible);
-        clearCompletedShouldBe(hidden);
+        todosOfClassShouldBe(activeClass, "b", "d");
         itemsLeftShouldBe(2);
     }
 
@@ -272,7 +227,6 @@ public class TodoMvcTest extends BaseTest {
         clearCompleted();
 
         todosShouldBeEmpty();
-        footerShouldBe(hidden);
     }
 
     private void givenAppOpened() {
@@ -335,10 +289,8 @@ public class TodoMvcTest extends BaseTest {
 
     private void clearCompleted() {
         clearCompleted.click();
-    }
 
-    private void footerShouldBe(Condition condition) {
-        $("#footer").shouldBe(condition);
+        clearCompletedShouldBe(hidden);
     }
 
     private void clearCompletedShouldBe(Condition condition) {
