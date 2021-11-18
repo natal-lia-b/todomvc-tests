@@ -16,15 +16,13 @@ public class TodoMvcTest extends BaseTest {
 
     private final ElementsCollection todos = $$("#todo-list>li");
     private final SelenideElement clearCompleted = $("#clear-completed");
-    private final String completedClass = "completed";
-    private final String activeClass = "active";
 
     @Test
     public void todoCrudManagement() {
         givenAppOpenedWith("a", "b", "c");
         todosShouldBe("a", "b", "c");
 
-        editWith(Keys.ENTER, "b", "b edited");
+        edit("b", "b edited");
 
         toggle("b edited");
         clearCompleted();
@@ -112,8 +110,8 @@ public class TodoMvcTest extends BaseTest {
 
         toggle("b");
 
-        todosOfClassShouldBe(completedClass, "b");
-        todosOfClassShouldBe(activeClass, "a", "c");
+        completedTodosShouldBe("b");
+        activeTodosShouldBe("a", "c");
         itemsLeftShouldBe(2);
     }
 
@@ -123,8 +121,8 @@ public class TodoMvcTest extends BaseTest {
 
         toggleAll();
 
-        todosOfClassShouldBe(completedClass, "a", "b", "c");
-        todosOfClassShouldBeEmpty(activeClass);
+        completedTodosShouldBe("a", "b", "c");
+        activeTodosShouldBeEmpty();
         itemsLeftShouldBe(0);
     }
 
@@ -135,8 +133,8 @@ public class TodoMvcTest extends BaseTest {
 
         toggleAll();
 
-        todosOfClassShouldBe(completedClass, "a", "b", "c");
-        todosOfClassShouldBeEmpty(activeClass);
+        completedTodosShouldBe("a", "b", "c");
+        activeTodosShouldBeEmpty();
         itemsLeftShouldBe(0);
     }
 
@@ -147,8 +145,8 @@ public class TodoMvcTest extends BaseTest {
 
         toggle("b");
 
-        todosOfClassShouldBeEmpty(completedClass);
-        todosOfClassShouldBe(activeClass, "a", "b", "c");
+        completedTodosShouldBeEmpty();
+        activeTodosShouldBe("a", "b", "c");
         itemsLeftShouldBe(3);
     }
 
@@ -159,8 +157,8 @@ public class TodoMvcTest extends BaseTest {
 
         toggleAll();
 
-        todosOfClassShouldBeEmpty(completedClass);
-        todosOfClassShouldBe(activeClass, "a", "b", "c");
+        completedTodosShouldBeEmpty();
+        activeTodosShouldBe("a", "b", "c");
         itemsLeftShouldBe(3);
     }
 
@@ -214,8 +212,8 @@ public class TodoMvcTest extends BaseTest {
         clearCompleted();
 
         todosShouldBe("b", "d");
-        todosOfClassShouldBeEmpty(completedClass);
-        todosOfClassShouldBe(activeClass, "b", "d");
+        completedTodosShouldBeEmpty();
+        activeTodosShouldBe("b", "d");
         itemsLeftShouldBe(2);
     }
 
@@ -228,6 +226,9 @@ public class TodoMvcTest extends BaseTest {
 
         todosShouldBeEmpty();
     }
+
+    private final String completed = "completed";
+    private final String active = "active";
 
     private void givenAppOpened() {
         if (WebDriverRunner.hasWebDriverStarted()) {
@@ -279,6 +280,10 @@ public class TodoMvcTest extends BaseTest {
         startEditing(text, newText).sendKeys(key);
     }
 
+    private void edit(String text, String newText) {
+        editWith(Keys.ENTER, text, newText);
+    }
+
     private void cancelEditing(String text, String newText) {
         editWith(Keys.ESCAPE, text, newText);
     }
@@ -297,12 +302,20 @@ public class TodoMvcTest extends BaseTest {
         clearCompleted.shouldBe(condition);
     }
 
-    private void todosOfClassShouldBe(String cssClass, String... texts) {
-        todos.filterBy(cssClass(cssClass)).shouldBe(exactTexts(texts));
+    private void activeTodosShouldBe(String... texts) {
+        todos.filterBy(cssClass(active)).shouldBe(exactTexts(texts));
     }
 
-    private void todosOfClassShouldBeEmpty(String cssClass){
-        todos.filterBy(cssClass(cssClass)).shouldBe(empty);
+    private void activeTodosShouldBeEmpty(){
+        todos.filterBy(cssClass(active)).shouldBe(empty);
+    }
+
+    private void completedTodosShouldBe(String... texts) {
+        todos.filterBy(cssClass(completed)).shouldBe(exactTexts(texts));
+    }
+
+    private void completedTodosShouldBeEmpty(){
+        todos.filterBy(cssClass(completed)).shouldBe(empty);
     }
 
     private void toggle(String text) {
