@@ -56,7 +56,7 @@ public class TodoMvc {
     }
 
     public void todosShouldBeEmpty() {
-        todos.shouldHave(size(0));
+        todos.filterBy(visible).shouldHave(size(0));
     }
 
     public SelenideElement startEditing(String text, String newText) {

@@ -20,12 +20,12 @@ public class OperationsOnCompletedFilterTest extends BaseTest {
 
         app.editWith(Keys.ENTER, "a", "a edited");
 
-        app.completedTodosShouldBe("a edited", "c");
+        app.todosShouldBe("a edited", "c");
         app.itemsLeftShouldBe(1);
     }
 
     @Test
-    void activatingOneOfSeveralCompleted() {
+    void unCompletingOneOfSeveralCompleted() {
         app.givenOpenedWith("a", "b", "c");
         app.toggle("a");
         app.toggle("c");
@@ -33,46 +33,20 @@ public class OperationsOnCompletedFilterTest extends BaseTest {
 
         app.toggle("c");
 
-        app.completedTodosShouldBe("a");
+        app.todosShouldBe("a");
         app.itemsLeftShouldBe(2);
     }
 
     @Test
-    void activatingLastCompleted() {
+    void unCompletingLastCompleted() {
         app.givenOpenedWith("a", "b", "c");
         app.toggle("b");
         app.filterCompleted();
 
         app.toggle("b");
 
-        app.completedTodosShouldBeEmpty();
+        app.todosShouldBeEmpty();
         app.clearCompletedShouldBe(hidden);
-    }
-
-    @Test
-    void completeAllTodosWithSomeAlreadyCompleted() {
-        app.givenOpenedWith("a", "b", "c", "d", "e");
-        app.toggle("a");
-        app.toggle("c");
-        app.toggle("e");
-        app.filterCompleted();
-
-        app.toggleAll();
-
-        app.todosShouldBe("a", "b", "c", "d", "e");
-        app.itemsLeftShouldBe(0);
-    }
-
-    @Test
-    void unCompletingTodo() {
-        app.givenOpenedWith("a", "b", "c");
-        app.toggle("b");
-        app.filterCompleted();
-
-        app.toggle("b");
-
-        app.completedTodosShouldBeEmpty();
-        app.itemsLeftShouldBe(3);
     }
 
     @Test
@@ -96,7 +70,7 @@ public class OperationsOnCompletedFilterTest extends BaseTest {
 
         app.clearCompleted();
 
-        app.completedTodosShouldBeEmpty();
+        app.todosShouldBeEmpty();
         app.itemsLeftShouldBe(2);
     }
 }

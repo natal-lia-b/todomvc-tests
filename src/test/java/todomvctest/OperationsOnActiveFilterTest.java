@@ -39,7 +39,7 @@ public class OperationsOnActiveFilterTest extends BaseTest {
 
         app.toggle("b");
 
-        app.activeTodosShouldBe("a", "c");
+        app.todosShouldBe("a", "c");
         app.itemsLeftShouldBe(2);
     }
 
@@ -51,7 +51,7 @@ public class OperationsOnActiveFilterTest extends BaseTest {
 
         app.delete("b");
 
-        app.activeTodosShouldBeEmpty();
+        app.todosShouldBeEmpty();
         app.itemsLeftShouldBe(0);
     }
 }
