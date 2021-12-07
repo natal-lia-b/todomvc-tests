@@ -2,121 +2,56 @@ package todomvctest;
 
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Keys;
+import todomvctest.model.TodoMvc;
 import todomvctest.testconfigs.BaseTest;
 
 public class OperationsOnActiveFilterTest extends BaseTest {
 
-    private TodoMvcPage todoMvc = new TodoMvcPage();
+    private TodoMvc app = new TodoMvc();
 
     @Test
-    void addsTodos() {
-        todoMvc.givenAppOpened();
-        todoMvc.add("a");
-        todoMvc.filterActive();
+    void addingTodos() {
+        app.givenOpened();
+        app.add("a");
+        app.filterActive();
 
-        todoMvc.add("b", "c");
+        app.add("b", "c");
 
-        todoMvc.activeTodosShouldBe("a", "b", "c");
-        todoMvc.itemsLeftShouldBe(3);
+        app.todosShouldBe("a", "b", "c");
+        app.itemsLeftShouldBe(3);
     }
 
     @Test
-    void editsTodoWithEnter() {
-        todoMvc.givenAppOpenedWith("a", "b", "c");
-        todoMvc.filterActive();
+    void editingTodoByFocusChange() {
+        app.givenOpenedWith("a", "b", "c");
+        app.filterActive();
 
-        todoMvc.editWith(Keys.ENTER, "b", "b edited");
+        app.editWith(Keys.TAB, "b", "b edited");
 
-        todoMvc.activeTodosShouldBe("a", "b edited", "c");
-        todoMvc.itemsLeftShouldBe(3);
+        app.todosShouldBe("a", "b edited", "c");
+        app.itemsLeftShouldBe(3);
     }
 
     @Test
-    void editsTodoByFocusChange() {
-        todoMvc.givenAppOpenedWith("a", "b", "c");
-        todoMvc.filterActive();
+    void completingTodo() {
+        app.givenOpenedWith("a", "b", "c");
+        app.filterActive();
 
-        todoMvc.editWith(Keys.TAB, "b", "b edited");
+        app.toggle("b");
 
-        todoMvc.activeTodosShouldBe("a", "b edited", "c");
-        todoMvc.itemsLeftShouldBe(3);
+        app.activeTodosShouldBe("a", "c");
+        app.itemsLeftShouldBe(2);
     }
 
     @Test
-    void cancelsEditingTodo() {
-        todoMvc.givenAppOpenedWith("a", "b", "c");
-        todoMvc.filterActive();
+    void deletingLastActiveTodo() {
+        app.givenOpenedWith("a", "b");
+        app.toggle("a");
+        app.filterActive();
 
-        todoMvc.cancelEditing("b", "b edited");
+        app.delete("b");
 
-        todoMvc.activeTodosShouldBe("a", "b", "c");
-        todoMvc.itemsLeftShouldBe(3);
-    }
-
-    @Test
-    void completesTodo() {
-        todoMvc.givenAppOpenedWith("a", "b", "c");
-        todoMvc.filterActive();
-
-        todoMvc.toggle("b");
-
-        todoMvc.activeTodosShouldBe("a", "c");
-        todoMvc.itemsLeftShouldBe(2);
-    }
-
-    @Test
-    void completesAllTodos() {
-        todoMvc.givenAppOpenedWith("a", "b", "c");
-        todoMvc.filterActive();
-
-        todoMvc.toggleAll();
-
-        todoMvc.activeTodosShouldBeEmpty();
-        todoMvc.itemsLeftShouldBe(0);
-    }
-
-    @Test
-    void completeAllTodosWithSomeAlreadyCompleted() {
-        todoMvc.givenAppOpenedWith("a", "b", "c");
-        todoMvc.toggle("b");
-        todoMvc.filterActive();
-
-        todoMvc.toggleAll();
-
-        todoMvc.activeTodosShouldBeEmpty();
-        todoMvc.itemsLeftShouldBe(0);
-    }
-
-    @Test
-    void deletesTodo() {
-        todoMvc.givenAppOpenedWith("a", "b", "c");
-        todoMvc.filterActive();
-
-        todoMvc.delete("b");
-
-        todoMvc.activeTodosShouldBe("a", "c");
-        todoMvc.itemsLeftShouldBe(2);
-    }
-
-    @Test
-    void deletesLastTodo() {
-        todoMvc.givenAppOpenedWith("a");
-        todoMvc.filterActive();
-
-        todoMvc.delete("a");
-
-        todoMvc.todosShouldBeEmpty();
-    }
-
-    @Test
-    void deletesLastActiveTodo() {
-        todoMvc.givenAppOpenedWith("a", "b");
-        todoMvc.toggle("a");
-        todoMvc.filterActive();
-
-        todoMvc.delete("b");
-
-        todoMvc.activeTodosShouldBeEmpty();
-        todoMvc.itemsLeftShouldBe(0);
+        app.activeTodosShouldBeEmpty();
+        app.itemsLeftShouldBe(0);
     }
 }

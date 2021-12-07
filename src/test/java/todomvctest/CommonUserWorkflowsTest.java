@@ -1,41 +1,42 @@
 package todomvctest;
 
 import org.junit.jupiter.api.Test;
+import todomvctest.model.TodoMvc;
 import todomvctest.testconfigs.BaseTest;
 
 public class CommonUserWorkflowsTest extends BaseTest {
 
-    private TodoMvcPage todoMvc = new TodoMvcPage();
+    private TodoMvc app = new TodoMvc();
 
     @Test
     public void todoCrudManagement() {
-        todoMvc.givenAppOpenedWith("a", "b", "c");
-        todoMvc.todosShouldBe("a", "b", "c");
+        app.givenOpenedWith("a", "b", "c");
+        app.todosShouldBe("a", "b", "c");
 
-        todoMvc.edit("b", "b edited");
+        app.edit("b", "b edited");
 
-        todoMvc.toggle("b edited");
-        todoMvc.clearCompleted();
-        todoMvc.todosShouldBe("a", "c");
+        app.toggle("b edited");
+        app.clearCompleted();
+        app.todosShouldBe("a", "c");
 
-        todoMvc.cancelEditing("c", "c to be canceled");
+        app.cancelEditing("c", "c to be canceled");
 
-        todoMvc.delete("c");
-        todoMvc.todosShouldBe("a");
+        app.delete("c");
+        app.todosShouldBe("a");
     }
 
     @Test
     void filtersTodos() {
-        todoMvc.givenAppOpenedWith("a", "b", "c");
-        todoMvc.toggle("b");
+        app.givenOpenedWith("a", "b", "c");
+        app.toggle("b");
 
-        todoMvc.filterActive();
-        todoMvc.todosShouldBe("a", "c");
+        app.filterActive();
+        app.todosShouldBe("a", "c");
 
-        todoMvc.filterCompleted();
-        todoMvc.todosShouldBe("b");
+        app.filterCompleted();
+        app.todosShouldBe("b");
 
-        todoMvc.filterAll();
-        todoMvc.todosShouldBe("a", "b", "c");
+        app.filterAll();
+        app.todosShouldBe("a", "b", "c");
     }
 }

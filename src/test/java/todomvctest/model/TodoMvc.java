@@ -1,4 +1,4 @@
-package todomvctest;
+package todomvctest.model;
 
 import com.codeborne.selenide.*;
 import org.openqa.selenium.Keys;
@@ -11,15 +11,15 @@ import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Selenide.*;
 import static org.openqa.selenium.support.ui.ExpectedConditions.jsReturnsValue;
 
-public class TodoMvcPage {
+public class TodoMvc {
 
-    protected final ElementsCollection todos = $$("#todo-list>li");
-    protected final SelenideElement clearCompleted = $("#clear-completed");
+    public final ElementsCollection todos = $$("#todo-list>li");
+    public final SelenideElement clearCompleted = $("#clear-completed");
 
-    protected final String completed = "completed";
-    protected final String active = "active";
+    public final String completed = "completed";
+    public final String active = "active";
 
-    protected void givenAppOpened() {
+    public void givenOpened() {
         if (WebDriverRunner.hasWebDriverStarted()) {
             Selenide.clearBrowserLocalStorage();
         }
@@ -27,12 +27,12 @@ public class TodoMvcPage {
         openApp();
     }
 
-    protected void givenAppOpenedWith(String... texts) {
-        givenAppOpened();
+    public void givenOpenedWith(String... texts) {
+        givenOpened();
         add(texts);
     }
 
-    protected static void openApp() {
+    public static void openApp() {
         open("/");
 
         String areRequireJsContextsLoaded =
@@ -45,89 +45,89 @@ public class TodoMvcPage {
         ));
     }
 
-    protected void add(String... texts) {
+    public void add(String... texts) {
         for (String text : texts) {
             $("#new-todo").append(text).pressEnter();
         }
     }
 
-    protected void todosShouldBe(String... texts) {
+    public void todosShouldBe(String... texts) {
         todos.filterBy(visible).shouldHave(exactTexts(texts));
     }
 
-    protected void todosShouldBeEmpty() {
+    public void todosShouldBeEmpty() {
         todos.shouldHave(size(0));
     }
 
-    protected SelenideElement startEditing(String text, String newText) {
+    public SelenideElement startEditing(String text, String newText) {
         todos.findBy(exactText(text)).doubleClick();
         return todos.findBy(cssClass("editing"))
                 .find(".edit").setValue(newText);
     }
 
-    protected void editWith(CharSequence key, String text, String newText) {
+    public void editWith(CharSequence key, String text, String newText) {
         startEditing(text, newText).sendKeys(key);
     }
 
-    protected void edit(String text, String newText) {
+    public void edit(String text, String newText) {
         editWith(Keys.ENTER, text, newText);
     }
 
-    protected void cancelEditing(String text, String newText) {
+    public void cancelEditing(String text, String newText) {
         editWith(Keys.ESCAPE, text, newText);
     }
 
-    protected void delete(String text) {
+    public void delete(String text) {
         todos.findBy(exactText(text)).hover().find(".destroy").click();
     }
 
-    protected void clearCompleted() {
+    public void clearCompleted() {
         clearCompleted.click();
 
         clearCompletedShouldBe(hidden);
     }
 
-    protected void clearCompletedShouldBe(Condition condition) {
+    public void clearCompletedShouldBe(Condition condition) {
         clearCompleted.shouldBe(condition);
     }
 
-    protected void activeTodosShouldBe(String... texts) {
+    public void activeTodosShouldBe(String... texts) {
         todos.filterBy(cssClass(active)).shouldBe(exactTexts(texts));
     }
 
-    protected void activeTodosShouldBeEmpty(){
+    public void activeTodosShouldBeEmpty(){
         todos.filterBy(cssClass(active)).filterBy(visible).shouldBe(empty);
     }
 
-    protected void completedTodosShouldBe(String... texts) {
+    public void completedTodosShouldBe(String... texts) {
         todos.filterBy(cssClass(completed)).shouldBe(exactTexts(texts));
     }
 
-    protected void completedTodosShouldBeEmpty(){
+    public void completedTodosShouldBeEmpty(){
         todos.filterBy(cssClass(completed)).filterBy(visible).shouldBe(empty);
     }
 
-    protected void toggle(String text) {
+    public void toggle(String text) {
         todos.findBy(exactText(text)).find(".toggle").click();
     }
 
-    protected void toggleAll() {
+    public void toggleAll() {
         $("#toggle-all").click();
     }
 
-    protected void filterAll() {
+    public void filterAll() {
         $("[href='#/']").click();
     }
 
-    protected void filterActive() {
+    public void filterActive() {
         $("[href='#/active']").click();
     }
 
-    protected void filterCompleted() {
+    public void filterCompleted() {
         $("[href='#/completed']").click();
     }
 
-    protected void itemsLeftShouldBe(int number) {
+    public void itemsLeftShouldBe(int number) {
         $("#todo-count>strong").shouldBe(exactText(String.valueOf(number)));
     }
 
