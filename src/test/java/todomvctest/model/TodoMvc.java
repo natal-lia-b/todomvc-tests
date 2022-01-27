@@ -1,19 +1,16 @@
 package todomvctest.model;
 
 import com.codeborne.selenide.*;
-import org.openqa.selenium.Keys;
 
 import static com.codeborne.selenide.CollectionCondition.empty;
-import static com.codeborne.selenide.CollectionCondition.exactTexts;
-import static com.codeborne.selenide.CollectionCondition.size;
+import static com.codeborne.selenide.CollectionCondition.*;
 import static com.codeborne.selenide.Condition.*;
-import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Selenide.*;
 import static org.openqa.selenium.support.ui.ExpectedConditions.jsReturnsValue;
 
 public class TodoMvc {
 
-    public final ElementsCollection todos = $$("#todo-list>li");
+    public static final ElementsCollection todos = $$("#todo-list>li");
     public final SelenideElement clearCompleted = $("#clear-completed");
 
     public final String completed = "completed";
@@ -45,6 +42,10 @@ public class TodoMvc {
         ));
     }
 
+    public Label getLabel(String label) {
+        return new Label(label);
+    }
+
     public void add(String... texts) {
         for (String text : texts) {
             $("#new-todo").append(text).pressEnter();
@@ -57,24 +58,6 @@ public class TodoMvc {
 
     public void todosShouldBeEmpty() {
         todos.filterBy(visible).shouldHave(size(0));
-    }
-
-    public SelenideElement startEditing(String text, String newText) {
-        todos.findBy(exactText(text)).doubleClick();
-        return todos.findBy(cssClass("editing"))
-                .find(".edit").setValue(newText);
-    }
-
-    public void editWith(CharSequence key, String text, String newText) {
-        startEditing(text, newText).sendKeys(key);
-    }
-
-    public void edit(String text, String newText) {
-        editWith(Keys.ENTER, text, newText);
-    }
-
-    public void cancelEditing(String text, String newText) {
-        editWith(Keys.ESCAPE, text, newText);
     }
 
     public void delete(String text) {

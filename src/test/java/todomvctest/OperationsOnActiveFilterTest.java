@@ -26,7 +26,7 @@ public class OperationsOnActiveFilterTest extends BaseTest {
         app.givenOpenedWith("a", "b", "c");
         app.filterActive();
 
-        app.editWith(Keys.TAB, "b", "b edited");
+        app.getLabel("b").editWith(Keys.TAB, "b edited");
 
         app.todosShouldBe("a", "b edited", "c");
         app.itemsLeftShouldBe(3);
