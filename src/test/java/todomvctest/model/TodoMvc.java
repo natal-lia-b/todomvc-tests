@@ -10,7 +10,7 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.jsReturnsValue;
 
 public class TodoMvc {
 
-    public static final ElementsCollection todos = $$("#todo-list>li");
+    public final ElementsCollection todos = $$("#todo-list>li");
     public final SelenideElement clearCompleted = $("#clear-completed");
 
     public final String completed = "completed";
@@ -42,7 +42,7 @@ public class TodoMvc {
         ));
     }
 
-    public Label getLabel(String label) {
+    public Label label(String label) {
         return new Label(label);
     }
 

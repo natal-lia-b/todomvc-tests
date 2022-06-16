@@ -5,19 +5,19 @@ import org.openqa.selenium.Keys;
 
 import static com.codeborne.selenide.Condition.cssClass;
 import static com.codeborne.selenide.Condition.exactText;
-import static todomvctest.model.TodoMvc.todos;
+import static com.codeborne.selenide.Selenide.$$;
 
 public class Label {
 
-    private SelenideElement label;
+    private SelenideElement element;
 
     public Label(String labelText) {
-        this.label = todos.findBy(exactText(labelText));
+        this.element = $$("#todo-list>li").findBy(exactText(labelText));
     }
 
     public SelenideElement startEditing(String newText) {
-        this.label.doubleClick();
-        return todos.findBy(cssClass("editing")).find(".edit").setValue(newText);
+        this.element.doubleClick();
+        return $$("#todo-list>li").findBy(cssClass("editing")).find(".edit").setValue(newText);
     }
 
     public Label editWith(CharSequence key, String newText) {

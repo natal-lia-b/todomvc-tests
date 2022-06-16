@@ -18,7 +18,7 @@ public class OperationsOnCompletedFilterTest extends BaseTest {
         app.toggle("c");
         app.filterCompleted();
 
-        app.getLabel("a").editWith(Keys.ENTER, "a edited");
+        app.label("a").editWith(Keys.ENTER, "a edited");
 
         app.todosShouldBe("a edited", "c");
         app.itemsLeftShouldBe(1);
