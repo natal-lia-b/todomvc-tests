@@ -4,15 +4,14 @@ import com.codeborne.selenide.SelenideElement;
 import org.openqa.selenium.Keys;
 
 import static com.codeborne.selenide.Condition.cssClass;
-import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Selenide.$$;
 
 public class Label {
 
-    private SelenideElement element;
+    public SelenideElement element;
 
-    public Label(String labelText) {
-        this.element = $$("#todo-list>li").findBy(exactText(labelText));
+    public Label(SelenideElement element) {
+        this.element = element;
     }
 
     public SelenideElement startEditing(String newText) {

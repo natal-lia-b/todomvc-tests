@@ -38,7 +38,7 @@ public class OperationsOnAllFilterTest extends BaseTest {
     void editingTodoWithEnter() {
         app.givenOpenedWith("a", "b", "c");
 
-        app.label("b").editWith(Keys.ENTER, "b edited");
+        app.todo("b").editWith(Keys.ENTER, "b edited");
 
         app.todosShouldBe("a", "b edited", "c");
         app.itemsLeftShouldBe(3);
@@ -48,7 +48,7 @@ public class OperationsOnAllFilterTest extends BaseTest {
     void editingTodoByFocusChange() {
         app.givenOpenedWith("a", "b", "c");
 
-        app.label("b").editWith(Keys.TAB, "b edited");
+        app.todo("b").editWith(Keys.TAB, "b edited");
 
         app.todosShouldBe("a", "b edited", "c");
         app.itemsLeftShouldBe(3);
@@ -58,7 +58,7 @@ public class OperationsOnAllFilterTest extends BaseTest {
     void cancelingEditingTodo() {
         app.givenOpenedWith("a", "b", "c");
 
-        app.label("b").cancelEditing("b edited");
+        app.todo("b").cancelEditing("b edited");
 
         app.todosShouldBe("a", "b", "c");
         app.itemsLeftShouldBe(3);
@@ -136,7 +136,7 @@ public class OperationsOnAllFilterTest extends BaseTest {
     void deletingTodoByEditingToBlank() {
         app.givenOpenedWith("a", "b", "c");
 
-        app.label("b").editWith(Keys.ENTER, " ");
+        app.todo("b").editWith(Keys.ENTER, " ");
 
         app.todosShouldBe("a", "c");
         app.itemsLeftShouldBe(2);

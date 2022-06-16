@@ -42,8 +42,12 @@ public class TodoMvc {
         ));
     }
 
-    public Label label(String label) {
-        return new Label(label);
+    public Label todo(String text) {
+        return new Label(findBy(text));
+    }
+
+    public SelenideElement findBy(String text) {
+        return $$("#todo-list>li").findBy(exactText(text));
     }
 
     public void add(String... texts) {

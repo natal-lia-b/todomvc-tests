@@ -13,13 +13,13 @@ public class CommonUserWorkflowsTest extends BaseTest {
         app.givenOpenedWith("a", "b", "c");
         app.todosShouldBe("a", "b", "c");
 
-        app.label("b").edit("b edited");
+        app.todo("b").edit("b edited");
 
         app.toggle("b edited");
         app.clearCompleted();
         app.todosShouldBe("a", "c");
 
-        app.label("c").cancelEditing("c to be canceled");
+        app.todo("c").cancelEditing("c to be canceled");
 
         app.delete("c");
         app.todosShouldBe("a");
